@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ interface SavedProject {
 }
 
 const MeusProjetos = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -38,7 +40,16 @@ const MeusProjetos = () => {
     // Carrega projetos do LocalStorage
     const savedProjects = localStorage.getItem("savedProjects");
     if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
+      // Filtra apenas os campos necessários para a lista, mas garante que o ID está lá
+      const parsedProjects = JSON.parse(savedProjects).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        usuario: p.usuario,
+        data_criacao: p.data_criacao,
+        Q: p.Q,
+        status: p.status,
+      }));
+      setProjects(parsedProjects);
     }
   };
 
@@ -49,12 +60,22 @@ const MeusProjetos = () => {
 
   const confirmDelete = () => {
     if (projectToDelete) {
+      // Remove o projeto do estado local
       const updatedProjects = projects.filter((p) => p.id !== projectToDelete);
       setProjects(updatedProjects);
-      localStorage.setItem("savedProjects", JSON.stringify(updatedProjects));
+      
+      // Remove o projeto do LocalStorage (incluindo todos os dados)
+      const fullSavedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
+      const updatedFullProjects = fullSavedProjects.filter((p: SavedProject) => p.id !== projectToDelete);
+      localStorage.setItem("savedProjects", JSON.stringify(updatedFullProjects));
+
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
     }
+  };
+
+  const handleViewProject = (id: string) => {
+    navigate(`/meus-projetos/${id}`);
   };
 
   const filteredProjects = projects.filter((project) =>
@@ -114,7 +135,7 @@ const MeusProjetos = () => {
                 : "Você ainda não criou nenhum projeto. Comece criando um novo dimensionamento."}
             </p>
             {!searchTerm && (
-              <Button onClick={() => (window.location.href = "/")}>
+              <Button onClick={() => navigate("/")}>
                 <Calculator className="mr-2 h-4 w-4" />
                 Novo Dimensionamento
               </Button>
@@ -164,10 +185,7 @@ const MeusProjetos = () => {
                     variant="outline"
                     size="sm"
                     className="flex-1"
-                    onClick={() => {
-                      // TODO: Implementar visualização do projeto
-                      console.log("Ver projeto:", project.id);
-                    }}
+                    onClick={() => handleViewProject(project.id)}
                   >
                     <Eye className="mr-2 h-4 w-4" />
                     Visualizar

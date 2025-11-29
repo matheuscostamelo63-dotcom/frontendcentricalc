@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import Index from "./pages/Index";
 import MeusProjetos from "./pages/MeusProjetos";
 import Sobre from "./pages/Sobre";
+import ProjectDetails from "./pages/ProjectDetails"; // Importando o novo componente
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/meus-projetos" element={<MeusProjetos />} />
+                <Route path="/meus-projetos/:id" element={<ProjectDetails />} /> {/* Nova Rota */}
                 <Route path="/sobre" element={<Sobre />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

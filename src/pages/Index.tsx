@@ -174,6 +174,17 @@ const Index = () => {
     setCalculating(true);
     setResult(null);
 
+    // Basic validation check for required fields (Q and NPSHr)
+    if (formData.Q === "" || formData.NPSHr === "") {
+      toast({
+        title: "Erro de Validação",
+        description: "Vazão Desejada e NPSHr são campos obrigatórios.",
+        variant: "destructive",
+      });
+      setCalculating(false);
+      return;
+    }
+
     try {
       // Convert units before sending
       const dataToSend: CalculationInput = {
@@ -190,14 +201,18 @@ const Index = () => {
           ...formData.suc,
           trechos: formData.suc.trechos.map((t) => ({
             ...t,
-            D: conversions.mmToM(t.D),
+            D: conversions.mmToM(Number(t.D) || 0),
+            L: Number(t.L) || 0,
+            conexoes: Number(t.conexoes) || 0,
           })),
         },
         recalque: formData.recalque.map((r) => ({
           ...r,
           trechos: r.trechos.map((t) => ({
             ...t,
-            D: conversions.mmToM(t.D),
+            D: conversions.mmToM(Number(t.D) || 0),
+            L: Number(t.L) || 0,
+            conexoes: Number(t.conexoes) || 0,
           })),
         })),
       };
@@ -205,19 +220,30 @@ const Index = () => {
       const calculationResult = await api.calcular(dataToSend);
       setResult(calculationResult);
 
-      // Save project to LocalStorage
+      // --- START: Saving Project Data ---
       const savedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
+      
+      // Create a unique ID and timestamp
+      const projectId = Date.now().toString();
+      const creationDate = new Date().toISOString();
+
       const projectData = {
-        id: Date.now().toString(),
-        name: formData.name || "Projeto sem nome",
+        id: projectId,
+        name: formData.name || `Projeto ${savedProjects.length + 1}`,
         usuario: formData.usuario || "Não especificado",
-        data_criacao: new Date().toISOString(),
+        data_criacao: creationDate,
         Q: Number(formData.Q) || 0,
         status: calculationResult.status,
+        // Save the full input data (before unit conversion)
+        inputData: formData, 
+        // Save the full result data
+        resultData: calculationResult,
       };
       
       savedProjects.unshift(projectData); // Add to beginning of array
       localStorage.setItem("savedProjects", JSON.stringify(savedProjects));
+      // --- END: Saving Project Data ---
+
 
       if (calculationResult.status === "ok") {
         toast({
