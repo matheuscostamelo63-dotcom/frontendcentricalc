@@ -97,6 +97,9 @@ const ProjectDetails = () => {
     });
   };
 
+  // Verifica se o PDF URL está presente no resultado
+  const pdfUrlAvailable = project.resultData.pdf_url;
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <Button variant="ghost" onClick={() => navigate("/meus-projetos")} className="mb-6 gap-2">
@@ -114,6 +117,20 @@ const ProjectDetails = () => {
       </div>
 
       <div className="space-y-6">
+        {/* Warning for potentially expired PDF link */}
+        {pdfUrlAvailable && (
+          <div className="p-4 border border-warning rounded-lg bg-warning/10 text-warning">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <p className="text-sm font-medium">
+                Atenção: O link do relatório PDF pode ter expirado, pois é gerado
+                dinamicamente pela API. Se o download falhar (erro 404),
+                recalcule o projeto na página inicial para gerar um novo link.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Display Input Data Summary (Optional, but useful) */}
         <Card>
           <CardHeader>
