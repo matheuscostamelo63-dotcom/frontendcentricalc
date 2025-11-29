@@ -241,15 +241,6 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
                 </a>
               </Button>
             </div>
-            {result.pdf_url && (
-              <div className="mt-4">
-                <img
-                  src={result.pdf_url}
-                  alt="Curva do Sistema"
-                  className="w-full max-w-3xl mx-auto rounded-lg border border-border"
-                />
-              </div>
-            )}
           </CardContent>
         </Card>
       )}
