@@ -119,7 +119,7 @@ const ProjectDetails = () => {
       <div className="space-y-6">
         {/* Warning for potentially expired PDF link */}
         {pdfUrlAvailable && (
-          <div className="p-4 border border-warning rounded-lg bg-warning/10 text-warning">
+          <div className="p-4 border border-warning rounded-lg bg-warning/10 text-warning space-y-2">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <p className="text-sm font-medium">
@@ -128,6 +128,9 @@ const ProjectDetails = () => {
                 recalcule o projeto na página inicial para gerar um novo link.
               </p>
             </div>
+            <p className="text-xs break-all">
+              URL do PDF salva: <span className="font-mono">{pdfUrlAvailable}</span>
+            </p>
           </div>
         )}
 
