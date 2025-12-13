@@ -32,12 +32,10 @@ export const Sidebar = () => {
               <img
                 src="/logo.png"
                 alt="CentriCalc Logo"
-                className="h-16 w-auto"
+                className="h-20 w-auto"
               />
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Dimensionamento de Bombas Centrífugas
-            </p>
+            {/* Texto descritivo removido */}
           </div>
 
           {/* Navigation */}
