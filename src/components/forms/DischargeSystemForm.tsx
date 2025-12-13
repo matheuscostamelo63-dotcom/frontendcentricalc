@@ -69,6 +69,24 @@ export const DischargeSystemForm = ({
     }
   };
 
+  // Custom handler for pressure (Pa to bar conversion)
+  const handlePressureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "") {
+      onChange(index, "pressao_manometrica", "");
+    } else {
+      const parsedValue = parseFloat(value);
+      // Convert bar to Pa for storage
+      onChange(index, "pressao_manometrica", isNaN(parsedValue) ? "" : parsedValue * 100000);
+    }
+  };
+
+  // Custom display for pressure (Pa to bar conversion)
+  const displayPressure = (pa: number | undefined) => {
+    if (pa === 0 || pa === undefined) return "";
+    return (pa / 100000).toFixed(2);
+  };
+
   return (
     <div className="border-2 border-accent/30 rounded-lg p-6 space-y-4 bg-card">
       <div className="flex justify-between items-center">
@@ -150,18 +168,9 @@ export const DischargeSystemForm = ({
                 type="number"
                 step="0.1"
                 min="0"
-                value={
-                  system.pressao_manometrica
-                    ? (system.pressao_manometrica / 100000).toFixed(2)
-                    : ""
-                }
-                onChange={(e) =>
-                  onChange(
-                    index,
-                    "pressao_manometrica",
-                    parseFloat(e.target.value) * 100000 || 0
-                  )
-                }
+                value={displayPressure(system.pressao_manometrica)}
+                onChange={handlePressureChange}
+                placeholder="0.00"
                 className="mt-1"
               />
             </div>

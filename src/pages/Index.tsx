@@ -31,7 +31,7 @@ type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido"> & {
     densidade: number | string;
     viscosidade: number | string;
     temperatura: number | string;
-    pressao_atm: number;
+    pressao_atm: number | string; // Changed to allow string for display logic
   };
 };
 
@@ -98,7 +98,7 @@ const Index = () => {
   ) => {
     const value = e.target.value;
     if (value === "") {
-      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura') {
+      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura' || field === 'pressao_atm') {
         setFormData((prev) => ({
           ...prev,
           fluido: { ...prev.fluido, [field]: "" },
@@ -110,7 +110,7 @@ const Index = () => {
       const parsedValue = parseFloat(value);
       const finalValue = isNaN(parsedValue) ? "" : parsedValue;
 
-      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura') {
+      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura' || field === 'pressao_atm') {
         setFormData((prev) => ({
           ...prev,
           fluido: { ...prev.fluido, [field]: finalValue },
@@ -230,12 +230,14 @@ const Index = () => {
           densidade: Number(formData.fluido.densidade) || 998,
           viscosidade: conversions.cpToPas(Number(formData.fluido.viscosidade) || 1.0),
           temperatura: Number(formData.fluido.temperatura) || 20,
+          pressao_atm: Number(formData.fluido.pressao_atm) || 101325,
         },
         suc: {
           ...formData.suc,
           nivel_nominal: Number(formData.suc.nivel_nominal) || 0,
           nivel_min: Number(formData.suc.nivel_min) || 0,
           nivel_max: Number(formData.suc.nivel_max) || 0,
+          pressao_manometrica: Number(formData.suc.pressao_manometrica) || 0,
           trechos: formData.suc.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -248,6 +250,7 @@ const Index = () => {
           nivel_nominal: Number(r.nivel_nominal) || 0,
           nivel_min: Number(r.nivel_min) || 0,
           nivel_max: Number(r.nivel_max) || 0,
+          pressao_manometrica: Number(r.pressao_manometrica) || 0,
           trechos: r.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -353,6 +356,30 @@ const Index = () => {
       ],
     });
     setResult(null);
+  };
+
+  // Custom display for atmospheric pressure (Pa to kPa conversion)
+  const displayAtmPressure = (pa: number | string | undefined) => {
+    if (pa === 0 || pa === undefined || pa === "") return "";
+    return conversions.paToKpa(Number(pa)).toFixed(2);
+  };
+
+  const handleAtmPressureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "") {
+      handleNumberChange(e, "pressao_atm");
+    } else {
+      const parsedValue = parseFloat(value);
+      // Convert kPa to Pa for storage
+      const paValue = isNaN(parsedValue) ? "" : conversions.kpaToPa(parsedValue);
+      setFormData((prev) => ({
+        ...prev,
+        fluido: {
+          ...prev.fluido,
+          pressao_atm: paValue,
+        },
+      }));
+    }
   };
 
   return (
@@ -482,20 +509,9 @@ const Index = () => {
                       id="pressao-atm"
                       type="number"
                       step="0.1"
-                      value={conversions.paToKpa(formData.fluido.pressao_atm).toFixed(
-                        2
-                      )}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          fluido: {
-                            ...prev.fluido,
-                            pressao_atm:
-                              conversions.kpaToPa(parseFloat(e.target.value)) ||
-                              101325,
-                          },
-                        }))
-                      }
+                      value={displayAtmPressure(formData.fluido.pressao_atm)}
+                      onChange={handleAtmPressureChange}
+                      placeholder="101.325"
                       className="mt-1"
                     />
                   </div>
