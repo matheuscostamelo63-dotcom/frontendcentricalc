@@ -24,10 +24,9 @@ import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 
 // Form data type that allows empty strings for number inputs
-type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "Z_bomba" | "fluido"> & {
+type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido"> & {
   Q: number | string;
   NPSHr: number | string;
-  Z_bomba: number | string; // Reintroduzido Z_bomba
   fluido: {
     densidade: number | string;
     viscosidade: number | string;
@@ -49,7 +48,6 @@ const Index = () => {
     usuario: "",
     Q: "",
     NPSHr: "",
-    Z_bomba: 0, // Valor inicial 0
     fluido: {
       densidade: 998,
       viscosidade: 1.0,
@@ -58,9 +56,9 @@ const Index = () => {
     },
     suc: {
       tipo_reservatorio: "aberto",
-      nivel_nominal: 0,
-      nivel_min: 0,
-      nivel_max: 0,
+      H_nominal: 0,
+      H_min: 0,
+      H_max: 0,
       trechos: [
         {
           L: 0,
@@ -74,9 +72,9 @@ const Index = () => {
       {
         destino_id: "Destino 1",
         tipo_reservatorio: "aberto",
-        nivel_nominal: 0,
-        nivel_min: 0,
-        nivel_max: 0,
+        H_nominal: 0,
+        H_min: 0,
+        H_max: 0,
         trechos: [
           {
             L: 0,
@@ -134,9 +132,9 @@ const Index = () => {
     const newSystem: DischargeSystem = {
       destino_id: `Destino ${formData.recalque.length + 1}`,
       tipo_reservatorio: "aberto",
-      nivel_nominal: 0,
-      nivel_min: 0,
-      nivel_max: 0,
+      H_nominal: 0,
+      H_min: 0,
+      H_max: 0,
       trechos: [
         {
           L: 0,
@@ -193,7 +191,6 @@ const Index = () => {
         ...formData,
         Q: conversions.m3hToM3s(Number(formData.Q) || 0),
         NPSHr: Number(formData.NPSHr) || 0,
-        Z_bomba: Number(formData.Z_bomba) || 0, // Incluindo Z_bomba
         fluido: {
           ...formData.fluido,
           densidade: Number(formData.fluido.densidade) || 998,
@@ -202,9 +199,9 @@ const Index = () => {
         },
         suc: {
           ...formData.suc,
-          nivel_nominal: Number(formData.suc.nivel_nominal) || 0,
-          nivel_min: Number(formData.suc.nivel_min) || 0,
-          nivel_max: Number(formData.suc.nivel_max) || 0,
+          H_nominal: Number(formData.suc.H_nominal) || 0,
+          H_min: Number(formData.suc.H_min) || 0,
+          H_max: Number(formData.suc.H_max) || 0,
           trechos: formData.suc.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -214,9 +211,9 @@ const Index = () => {
         },
         recalque: formData.recalque.map((r) => ({
           ...r,
-          nivel_nominal: Number(r.nivel_nominal) || 0,
-          nivel_min: Number(r.nivel_min) || 0,
-          nivel_max: Number(r.nivel_max) || 0,
+          H_nominal: Number(r.H_nominal) || 0,
+          H_min: Number(r.H_min) || 0,
+          H_max: Number(r.H_max) || 0,
           trechos: r.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -283,7 +280,6 @@ const Index = () => {
       usuario: "",
       Q: "",
       NPSHr: "",
-      Z_bomba: 0, // Reset Z_bomba
       fluido: {
         densidade: 998,
         viscosidade: 1.0,
@@ -292,9 +288,9 @@ const Index = () => {
       },
       suc: {
         tipo_reservatorio: "aberto",
-        nivel_nominal: 0,
-        nivel_min: 0,
-        nivel_max: 0,
+        H_nominal: 0,
+        H_min: 0,
+        H_max: 0,
         trechos: [
           {
             L: 0,
@@ -308,9 +304,9 @@ const Index = () => {
         {
           destino_id: "Destino 1",
           tipo_reservatorio: "aberto",
-          nivel_nominal: 0,
-          nivel_min: 0,
-          nivel_max: 0,
+          H_nominal: 0,
+          H_min: 0,
+          H_max: 0,
           trechos: [
             {
               L: 0,
@@ -412,26 +408,6 @@ const Index = () => {
                   placeholder="0"
                   className="mt-1"
                 />
-              </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="z-bomba">Cota da Linha de Centro da Bomba (m)</Label>
-                <Input
-                  id="z-bomba"
-                  type="number"
-                  step="0.1"
-                  value={formData.Z_bomba}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      Z_bomba: e.target.value === "" ? "" : parseFloat(e.target.value),
-                    }))
-                  }
-                  placeholder="0"
-                  className="mt-1"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Esta é a referência zero para o cálculo dos desníveis geométricos (Hs e Hr).
-                </p>
               </div>
             </div>
           </CardContent>
@@ -562,7 +538,7 @@ const Index = () => {
                   }
                 />
                 <p className="text-sm text-muted-foreground mt-4">
-                  O desnível geométrico de sucção (Hs) é calculado pela diferença entre a Cota do Reservatório de Sucção e a Cota da Bomba (Z_reservatório - Z_bomba).
+                  O desnível geométrico de sucção (Hs) é a diferença de altura entre a superfície do fluido no reservatório de sucção e a linha de centro do rotor da bomba.
                 </p>
               </CardContent>
             </CollapsibleContent>
@@ -593,7 +569,7 @@ const Index = () => {
               />
             ))}
             <p className="text-sm text-muted-foreground mt-4">
-              O desnível geométrico de recalque (Hr) é calculado pela diferença entre a Cota do Reservatório de Recalque e a Cota da Bomba (Z_reservatório - Z_bomba).
+              O desnível geométrico de recalque (Hr) é a diferença de altura entre a superfície do fluido no reservatório de descarga e a linha de centro do rotor da bomba.
             </p>
           </CardContent>
         </Card>
