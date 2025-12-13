@@ -29,10 +29,10 @@ export const Sidebar = () => {
           {/* Header */}
           <div className="p-6 border-b border-border">
             <h1 className="text-lg font-bold text-primary">
-              Sistema de Dimensionamento
+              CentriCalc
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
-              Bombas Centrífugas
+              Dimensionamento de Bombas Centrífugas
             </p>
           </div>
 

@@ -6,7 +6,7 @@ const Sobre = () => {
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Sobre o Sistema
+          Sobre o CentriCalc
         </h1>
         <p className="text-muted-foreground">
           Sistema de Dimensionamento de Bombas Centrífugas
@@ -20,7 +20,7 @@ const Sobre = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-foreground">
-              Este sistema foi desenvolvido para auxiliar engenheiros e técnicos no
+              Este sistema (CentriCalc) foi desenvolvido para auxiliar engenheiros e técnicos no
               dimensionamento preciso de sistemas de bombeamento centrífugo. A
               ferramenta realiza cálculos complexos de forma automatizada,
               considerando múltiplos parâmetros e condições operacionais.
@@ -107,7 +107,7 @@ const Sobre = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Como Usar</CardTitle>
+            <CardTitle>Como Usar o CentriCalc</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
