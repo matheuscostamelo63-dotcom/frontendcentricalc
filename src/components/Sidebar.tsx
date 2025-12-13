@@ -3,9 +3,14 @@ import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const { theme } = useTheme();
+  
+  // Determina qual logo usar baseado no tema
+  const logoSrc = theme === 'dark' ? "/logo-dark.png" : "/logo-light.png";
 
   return (
     <>
@@ -30,7 +35,7 @@ export const Sidebar = () => {
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-center">
               <img
-                src="/logo.png"
+                src={logoSrc}
                 alt="CentriCalc Logo"
                 className="h-50 w-auto"
               />
