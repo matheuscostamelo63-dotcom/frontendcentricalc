@@ -42,6 +42,24 @@ export const SuctionSystemForm = ({
     onChange("trechos", newSections);
   };
 
+  // Helper function to display value: show "" if value is 0 or null/undefined
+  const displayValue = (val: number | string | undefined) => 
+    val === 0 || val === undefined ? "" : val;
+
+  // Helper function to handle number input changes for the system
+  const handleSystemNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof SuctionSystem
+  ) => {
+    const value = e.target.value;
+    if (value === "") {
+      onChange(field, "");
+    } else {
+      const parsedValue = parseFloat(value);
+      onChange(field, isNaN(parsedValue) ? "" : parsedValue);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,10 +113,8 @@ export const SuctionSystemForm = ({
             id="suc-H-nominal"
             type="number"
             step="0.1"
-            value={system.nivel_nominal}
-            onChange={(e) =>
-              onChange("nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
+            value={displayValue(system.nivel_nominal)}
+            onChange={(e) => handleSystemNumberChange(e, "nivel_nominal")}
             placeholder="0"
             className="mt-1"
           />
@@ -109,10 +125,8 @@ export const SuctionSystemForm = ({
             id="suc-H-min"
             type="number"
             step="0.1"
-            value={system.nivel_min}
-            onChange={(e) =>
-              onChange("nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
+            value={displayValue(system.nivel_min)}
+            onChange={(e) => handleSystemNumberChange(e, "nivel_min")}
             placeholder="0"
             className="mt-1"
           />
@@ -123,10 +137,8 @@ export const SuctionSystemForm = ({
             id="suc-H-max"
             type="number"
             step="0.1"
-            value={system.nivel_max}
-            onChange={(e) =>
-              onChange("nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
+            value={displayValue(system.nivel_max)}
+            onChange={(e) => handleSystemNumberChange(e, "nivel_max")}
             placeholder="0"
             className="mt-1"
           />

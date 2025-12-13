@@ -51,6 +51,24 @@ export const DischargeSystemForm = ({
     onChange(index, "trechos", newSections);
   };
 
+  // Helper function to display value: show "" if value is 0 or null/undefined
+  const displayValue = (val: number | string | undefined) => 
+    val === 0 || val === undefined ? "" : val;
+
+  // Helper function to handle number input changes for the system
+  const handleSystemNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof DischargeSystem
+  ) => {
+    const value = e.target.value;
+    if (value === "") {
+      onChange(index, field, "");
+    } else {
+      const parsedValue = parseFloat(value);
+      onChange(index, field, isNaN(parsedValue) ? "" : parsedValue);
+    }
+  };
+
   return (
     <div className="border-2 border-accent/30 rounded-lg p-6 space-y-4 bg-card">
       <div className="flex justify-between items-center">
@@ -158,10 +176,8 @@ export const DischargeSystemForm = ({
                 id={`rec-H-nominal-${index}`}
                 type="number"
                 step="0.1"
-                value={system.nivel_nominal}
-                onChange={(e) =>
-                  onChange(index, "nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
-                }
+                value={displayValue(system.nivel_nominal)}
+                onChange={(e) => handleSystemNumberChange(e, "nivel_nominal")}
                 placeholder="0"
                 className="mt-1"
               />
@@ -172,10 +188,8 @@ export const DischargeSystemForm = ({
                 id={`rec-H-min-${index}`}
                 type="number"
                 step="0.1"
-                value={system.nivel_min}
-                onChange={(e) =>
-                  onChange(index, "nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
-                }
+                value={displayValue(system.nivel_min)}
+                onChange={(e) => handleSystemNumberChange(e, "nivel_min")}
                 placeholder="0"
                 className="mt-1"
               />
@@ -186,10 +200,8 @@ export const DischargeSystemForm = ({
                 id={`rec-H-max-${index}`}
                 type="number"
                 step="0.1"
-                value={system.nivel_max}
-                onChange={(e) =>
-                  onChange(index, "nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
-                }
+                value={displayValue(system.nivel_max)}
+                onChange={(e) => handleSystemNumberChange(e, "nivel_max")}
                 placeholder="0"
                 className="mt-1"
               />

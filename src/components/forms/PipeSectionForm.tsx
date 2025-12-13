@@ -32,6 +32,25 @@ export const PipeSectionForm = ({
     ? materials.find((m) => m.id === section.material)
     : undefined;
 
+  // Helper function to handle number input changes
+  const handleNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof PipeSection,
+    isInteger = false
+  ) => {
+    const value = e.target.value;
+    if (value === "") {
+      onChange(index, field, ""); // Keep as empty string in state if input is empty
+    } else {
+      const parsedValue = isInteger ? parseInt(value) : parseFloat(value);
+      onChange(index, field, isNaN(parsedValue) ? "" : parsedValue);
+    }
+  };
+
+  // Helper function to display value: show "" if value is 0 or null/undefined
+  const displayValue = (val: number | string | undefined) => 
+    val === 0 || val === undefined ? "" : val;
+
   return (
     <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
       <div className="flex justify-between items-center">
@@ -58,10 +77,8 @@ export const PipeSectionForm = ({
             type="number"
             step="0.1"
             min="0"
-            value={section.L}
-            onChange={(e) =>
-              onChange(index, "L", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
+            value={displayValue(section.L)}
+            onChange={(e) => handleNumberChange(e, "L")}
             placeholder="0"
             className="mt-1"
           />
@@ -74,10 +91,8 @@ export const PipeSectionForm = ({
             type="number"
             step="0.1"
             min="0"
-            value={section.D}
-            onChange={(e) =>
-              onChange(index, "D", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
+            value={displayValue(section.D)}
+            onChange={(e) => handleNumberChange(e, "D")}
             placeholder="0"
             className="mt-1"
           />
@@ -111,14 +126,8 @@ export const PipeSectionForm = ({
             type="number"
             step="0.001"
             min="0"
-            value={section.rugosidade_mm || ""}
-            onChange={(e) =>
-              onChange(
-                index,
-                "rugosidade_mm",
-                e.target.value ? parseFloat(e.target.value) : undefined
-              )
-            }
+            value={displayValue(section.rugosidade_mm)}
+            onChange={(e) => handleNumberChange(e, "rugosidade_mm")}
             placeholder="Opcional"
             className="mt-1"
           />
@@ -133,10 +142,8 @@ export const PipeSectionForm = ({
             type="number"
             step="1"
             min="0"
-            value={section.conexoes}
-            onChange={(e) =>
-              onChange(index, "conexoes", e.target.value === "" ? "" : parseInt(e.target.value))
-            }
+            value={displayValue(section.conexoes)}
+            onChange={(e) => handleNumberChange(e, "conexoes", true)}
             placeholder="0"
             className="mt-1"
           />

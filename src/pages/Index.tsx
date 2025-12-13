@@ -87,6 +87,40 @@ const Index = () => {
     ],
   });
 
+  // Helper function to display value: show "" if value is 0 or null/undefined
+  const displayValue = (val: number | string | undefined) => 
+    val === 0 || val === undefined ? "" : val;
+
+  // Helper function to handle number input changes for the main form
+  const handleNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof FormDataInput | keyof FormDataInput['fluido']
+  ) => {
+    const value = e.target.value;
+    if (value === "") {
+      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura') {
+        setFormData((prev) => ({
+          ...prev,
+          fluido: { ...prev.fluido, [field]: "" },
+        }));
+      } else {
+        setFormData((prev) => ({ ...prev, [field]: "" }));
+      }
+    } else {
+      const parsedValue = parseFloat(value);
+      const finalValue = isNaN(parsedValue) ? "" : parsedValue;
+
+      if (field === 'densidade' || field === 'viscosidade' || field === 'temperatura') {
+        setFormData((prev) => ({
+          ...prev,
+          fluido: { ...prev.fluido, [field]: finalValue },
+        }));
+      } else {
+        setFormData((prev) => ({ ...prev, [field]: finalValue }));
+      }
+    }
+  };
+
   useEffect(() => {
     loadMaterials();
   }, []);
@@ -321,14 +355,6 @@ const Index = () => {
     setResult(null);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-8">
@@ -380,13 +406,8 @@ const Index = () => {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={formData.Q}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      Q: e.target.value === "" ? "" : parseFloat(e.target.value),
-                    }))
-                  }
+                  value={displayValue(formData.Q)}
+                  onChange={(e) => handleNumberChange(e, "Q")}
                   placeholder="0"
                   className="mt-1"
                 />
@@ -398,13 +419,8 @@ const Index = () => {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={formData.NPSHr}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      NPSHr: e.target.value === "" ? "" : parseFloat(e.target.value),
-                    }))
-                  }
+                  value={displayValue(formData.NPSHr)}
+                  onChange={(e) => handleNumberChange(e, "NPSHr")}
                   placeholder="0"
                   className="mt-1"
                 />
@@ -430,16 +446,8 @@ const Index = () => {
                       id="densidade"
                       type="number"
                       step="0.1"
-                      value={formData.fluido.densidade}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          fluido: {
-                            ...prev.fluido,
-                            densidade: e.target.value === "" ? "" : parseFloat(e.target.value),
-                          },
-                        }))
-                      }
+                      value={displayValue(formData.fluido.densidade)}
+                      onChange={(e) => handleNumberChange(e, "densidade")}
                       placeholder="998"
                       className="mt-1"
                     />
@@ -450,16 +458,8 @@ const Index = () => {
                       id="viscosidade"
                       type="number"
                       step="0.01"
-                      value={formData.fluido.viscosidade}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          fluido: {
-                            ...prev.fluido,
-                            viscosidade: e.target.value === "" ? "" : parseFloat(e.target.value),
-                          },
-                        }))
-                      }
+                      value={displayValue(formData.fluido.viscosidade)}
+                      onChange={(e) => handleNumberChange(e, "viscosidade")}
                       placeholder="1.0"
                       className="mt-1"
                     />
@@ -470,16 +470,8 @@ const Index = () => {
                       id="temperatura"
                       type="number"
                       step="0.1"
-                      value={formData.fluido.temperatura}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          fluido: {
-                            ...prev.fluido,
-                            temperatura: e.target.value === "" ? "" : parseFloat(e.target.value),
-                          },
-                        }))
-                      }
+                      value={displayValue(formData.fluido.temperatura)}
+                      onChange={(e) => handleNumberChange(e, "temperatura")}
                       placeholder="20"
                       className="mt-1"
                     />
