@@ -90,42 +90,45 @@ export const SuctionSystemForm = ({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="suc-nivel-nominal">Nível Nominal (m)</Label>
+          <Label htmlFor="suc-H-nominal">Desnível Nominal (m)</Label>
           <Input
-            id="suc-nivel-nominal"
+            id="suc-H-nominal"
             type="number"
             step="0.1"
-            value={system.nivel_nominal}
+            value={system.H_nominal}
             onChange={(e) =>
-              onChange("nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+              onChange("H_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+            }
+            placeholder="0"
+            className="mt-1"
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Hs = Z_reservatório - Z_bomba
+          </p>
+        </div>
+        <div>
+          <Label htmlFor="suc-H-min">Desnível Mínimo (m)</Label>
+          <Input
+            id="suc-H-min"
+            type="number"
+            step="0.1"
+            value={system.H_min}
+            onChange={(e) =>
+              onChange("H_min", e.target.value === "" ? "" : parseFloat(e.target.value))
             }
             placeholder="0"
             className="mt-1"
           />
         </div>
         <div>
-          <Label htmlFor="suc-nivel-min">Nível Mínimo (m)</Label>
+          <Label htmlFor="suc-H-max">Desnível Máximo (m)</Label>
           <Input
-            id="suc-nivel-min"
+            id="suc-H-max"
             type="number"
             step="0.1"
-            value={system.nivel_min}
+            value={system.H_max}
             onChange={(e) =>
-              onChange("nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
-            }
-            placeholder="0"
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label htmlFor="suc-nivel-max">Nível Máximo (m)</Label>
-          <Input
-            id="suc-nivel-max"
-            type="number"
-            step="0.1"
-            value={system.nivel_max}
-            onChange={(e) =>
-              onChange("nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
+              onChange("H_max", e.target.value === "" ? "" : parseFloat(e.target.value))
             }
             placeholder="0"
             className="mt-1"

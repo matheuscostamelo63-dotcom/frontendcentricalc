@@ -17,9 +17,9 @@ export interface PipeSection {
 export interface ReservoirData {
   tipo_reservatorio: "aberto" | "pressurizado";
   pressao_manometrica?: number;
-  nivel_nominal: number;
-  nivel_min: number;
-  nivel_max: number;
+  H_nominal: number; // Desnível Geométrico Nominal (m)
+  H_min: number; // Desnível Geométrico Mínimo (m)
+  H_max: number; // Desnível Geométrico Máximo (m)
 }
 
 export interface SuctionSystem extends ReservoirData {
@@ -43,7 +43,6 @@ export interface CalculationInput {
   usuario: string;
   Q: number;
   NPSHr: number;
-  Z_bomba: number; // Novo campo: Cota da linha de centro do rotor da bomba (m)
   fluido: FluidParameters;
   suc: SuctionSystem;
   recalque: DischargeSystem[];

@@ -151,44 +151,47 @@ export const DischargeSystemForm = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor={`rec-nivel-nominal-${index}`}>
-                Nível Nominal (m)
+              <Label htmlFor={`rec-H-nominal-${index}`}>
+                Desnível Nominal (m)
               </Label>
               <Input
-                id={`rec-nivel-nominal-${index}`}
+                id={`rec-H-nominal-${index}`}
                 type="number"
                 step="0.1"
-                value={system.nivel_nominal}
+                value={system.H_nominal}
                 onChange={(e) =>
-                  onChange(index, "nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+                  onChange(index, "H_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+                }
+                placeholder="0"
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Hr = Z_reservatório - Z_bomba
+              </p>
+            </div>
+            <div>
+              <Label htmlFor={`rec-H-min-${index}`}>Desnível Mínimo (m)</Label>
+              <Input
+                id={`rec-H-min-${index}`}
+                type="number"
+                step="0.1"
+                value={system.H_min}
+                onChange={(e) =>
+                  onChange(index, "H_min", e.target.value === "" ? "" : parseFloat(e.target.value))
                 }
                 placeholder="0"
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor={`rec-nivel-min-${index}`}>Nível Mínimo (m)</Label>
+              <Label htmlFor={`rec-H-max-${index}`}>Desnível Máximo (m)</Label>
               <Input
-                id={`rec-nivel-min-${index}`}
+                id={`rec-H-max-${index}`}
                 type="number"
                 step="0.1"
-                value={system.nivel_min}
+                value={system.H_max}
                 onChange={(e) =>
-                  onChange(index, "nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
-                }
-                placeholder="0"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor={`rec-nivel-max-${index}`}>Nível Máximo (m)</Label>
-              <Input
-                id={`rec-nivel-max-${index}`}
-                type="number"
-                step="0.1"
-                value={system.nivel_max}
-                onChange={(e) =>
-                  onChange(index, "nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
+                  onChange(index, "H_max", e.target.value === "" ? "" : parseFloat(e.target.value))
                 }
                 placeholder="0"
                 className="mt-1"
