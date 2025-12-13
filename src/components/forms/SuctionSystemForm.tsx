@@ -75,7 +75,8 @@ export const SuctionSystemForm = ({
   // Custom display for pressure (Pa to bar conversion)
   const displayPressure = (pa: number | string | undefined) => {
     if (pa === 0 || pa === undefined || pa === "") return "";
-    return (Number(pa) / 100000).toFixed(2);
+    // Return the raw converted value as a string, without fixed decimals
+    return String(Number(pa) / 100000);
   };
 
   return (

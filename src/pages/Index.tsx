@@ -361,7 +361,8 @@ const Index = () => {
   // Custom display for atmospheric pressure (Pa to kPa conversion)
   const displayAtmPressure = (pa: number | string | undefined) => {
     if (pa === 0 || pa === undefined || pa === "") return "";
-    return conversions.paToKpa(Number(pa)).toFixed(2);
+    // Return the raw converted value as a string, without fixed decimals
+    return String(conversions.paToKpa(Number(pa)));
   };
 
   const handleAtmPressureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
