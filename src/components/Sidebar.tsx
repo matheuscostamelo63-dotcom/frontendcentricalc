@@ -28,10 +28,14 @@ export const Sidebar = () => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="p-6 border-b border-border">
-            <h1 className="text-lg font-bold text-primary">
-              CentriCalc
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className="flex items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="CentriCalc Logo"
+                className="h-12 w-auto"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               Dimensionamento de Bombas Centrífugas
             </p>
           </div>
