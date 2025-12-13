@@ -32,7 +32,7 @@ export const Sidebar = () => {
               <img
                 src="/logo.png"
                 alt="CentriCalc Logo"
-                className="h-24 w-auto"
+                className="h-50 w-auto"
               />
             </div>
             {/* Texto descritivo removido */}

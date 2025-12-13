@@ -93,6 +93,9 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      spacing: {
+        '50': '12.5rem', // 200px
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
