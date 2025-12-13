@@ -102,9 +102,6 @@ export const SuctionSystemForm = ({
             placeholder="0"
             className="mt-1"
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            Hs = Z_reservatório - Z_bomba
-          </p>
         </div>
         <div>
           <Label htmlFor="suc-H-min">Desnível Geométrico Mínimo (m)</Label>

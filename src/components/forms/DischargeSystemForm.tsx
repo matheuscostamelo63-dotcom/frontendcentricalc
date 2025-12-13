@@ -165,9 +165,6 @@ export const DischargeSystemForm = ({
                 placeholder="0"
                 className="mt-1"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Hr = Z_reservatório - Z_bomba
-              </p>
             </div>
             <div>
               <Label htmlFor={`rec-H-min-${index}`}>Desnível Geométrico Mínimo (m)</Label>

@@ -537,9 +537,6 @@ const Index = () => {
                     }))
                   }
                 />
-                <p className="text-sm text-muted-foreground mt-4">
-                  O desnível geométrico de sucção (Hs) é a diferença de altura entre a superfície do fluido no reservatório de sucção e a linha de centro do rotor da bomba.
-                </p>
               </CardContent>
             </CollapsibleContent>
           </Card>
@@ -568,9 +565,6 @@ const Index = () => {
                 canRemove={formData.recalque.length > 1}
               />
             ))}
-            <p className="text-sm text-muted-foreground mt-4">
-              O desnível geométrico de recalque (Hr) é a diferença de altura entre a superfície do fluido no reservatório de descarga e a linha de centro do rotor da bomba.
-            </p>
           </CardContent>
         </Card>
 
