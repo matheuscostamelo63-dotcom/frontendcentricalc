@@ -56,9 +56,9 @@ const Index = () => {
     },
     suc: {
       tipo_reservatorio: "aberto",
-      H_nominal: 0,
-      H_min: 0,
-      H_max: 0,
+      nivel_nominal: 0,
+      nivel_min: 0,
+      nivel_max: 0,
       trechos: [
         {
           L: 0,
@@ -72,9 +72,9 @@ const Index = () => {
       {
         destino_id: "Destino 1",
         tipo_reservatorio: "aberto",
-        H_nominal: 0,
-        H_min: 0,
-        H_max: 0,
+        nivel_nominal: 0,
+        nivel_min: 0,
+        nivel_max: 0,
         trechos: [
           {
             L: 0,
@@ -132,9 +132,9 @@ const Index = () => {
     const newSystem: DischargeSystem = {
       destino_id: `Destino ${formData.recalque.length + 1}`,
       tipo_reservatorio: "aberto",
-      H_nominal: 0,
-      H_min: 0,
-      H_max: 0,
+      nivel_nominal: 0,
+      nivel_min: 0,
+      nivel_max: 0,
       trechos: [
         {
           L: 0,
@@ -199,9 +199,9 @@ const Index = () => {
         },
         suc: {
           ...formData.suc,
-          H_nominal: Number(formData.suc.H_nominal) || 0,
-          H_min: Number(formData.suc.H_min) || 0,
-          H_max: Number(formData.suc.H_max) || 0,
+          nivel_nominal: Number(formData.suc.nivel_nominal) || 0,
+          nivel_min: Number(formData.suc.nivel_min) || 0,
+          nivel_max: Number(formData.suc.nivel_max) || 0,
           trechos: formData.suc.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -211,9 +211,9 @@ const Index = () => {
         },
         recalque: formData.recalque.map((r) => ({
           ...r,
-          H_nominal: Number(r.H_nominal) || 0,
-          H_min: Number(r.H_min) || 0,
-          H_max: Number(r.H_max) || 0,
+          nivel_nominal: Number(r.nivel_nominal) || 0,
+          nivel_min: Number(r.nivel_min) || 0,
+          nivel_max: Number(r.nivel_max) || 0,
           trechos: r.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
@@ -288,9 +288,9 @@ const Index = () => {
       },
       suc: {
         tipo_reservatorio: "aberto",
-        H_nominal: 0,
-        H_min: 0,
-        H_max: 0,
+        nivel_nominal: 0,
+        nivel_min: 0,
+        nivel_max: 0,
         trechos: [
           {
             L: 0,
@@ -304,9 +304,9 @@ const Index = () => {
         {
           destino_id: "Destino 1",
           tipo_reservatorio: "aberto",
-          H_nominal: 0,
-          H_min: 0,
-          H_max: 0,
+          nivel_nominal: 0,
+          nivel_min: 0,
+          nivel_max: 0,
           trechos: [
             {
               L: 0,

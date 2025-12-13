@@ -158,9 +158,9 @@ export const DischargeSystemForm = ({
                 id={`rec-H-nominal-${index}`}
                 type="number"
                 step="0.1"
-                value={system.H_nominal}
+                value={system.nivel_nominal}
                 onChange={(e) =>
-                  onChange(index, "H_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+                  onChange(index, "nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
                 }
                 placeholder="0"
                 className="mt-1"
@@ -172,9 +172,9 @@ export const DischargeSystemForm = ({
                 id={`rec-H-min-${index}`}
                 type="number"
                 step="0.1"
-                value={system.H_min}
+                value={system.nivel_min}
                 onChange={(e) =>
-                  onChange(index, "H_min", e.target.value === "" ? "" : parseFloat(e.target.value))
+                  onChange(index, "nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
                 }
                 placeholder="0"
                 className="mt-1"
@@ -186,9 +186,9 @@ export const DischargeSystemForm = ({
                 id={`rec-H-max-${index}`}
                 type="number"
                 step="0.1"
-                value={system.H_max}
+                value={system.nivel_max}
                 onChange={(e) =>
-                  onChange(index, "H_max", e.target.value === "" ? "" : parseFloat(e.target.value))
+                  onChange(index, "nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
                 }
                 placeholder="0"
                 className="mt-1"

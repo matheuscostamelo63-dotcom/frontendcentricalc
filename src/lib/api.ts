@@ -17,9 +17,9 @@ export interface PipeSection {
 export interface ReservoirData {
   tipo_reservatorio: "aberto" | "pressurizado";
   pressao_manometrica?: number;
-  H_nominal: number; // Desnível Geométrico Nominal (m)
-  H_min: number; // Desnível Geométrico Mínimo (m)
-  H_max: number; // Desnível Geométrico Máximo (m)
+  nivel_nominal: number; // Desnível Geométrico Nominal (m)
+  nivel_min: number; // Desnível Geométrico Mínimo (m)
+  nivel_max: number; // Desnível Geométrico Máximo (m)
 }
 
 export interface SuctionSystem extends ReservoirData {

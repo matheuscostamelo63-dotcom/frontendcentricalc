@@ -95,9 +95,9 @@ export const SuctionSystemForm = ({
             id="suc-H-nominal"
             type="number"
             step="0.1"
-            value={system.H_nominal}
+            value={system.nivel_nominal}
             onChange={(e) =>
-              onChange("H_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
+              onChange("nivel_nominal", e.target.value === "" ? "" : parseFloat(e.target.value))
             }
             placeholder="0"
             className="mt-1"
@@ -109,9 +109,9 @@ export const SuctionSystemForm = ({
             id="suc-H-min"
             type="number"
             step="0.1"
-            value={system.H_min}
+            value={system.nivel_min}
             onChange={(e) =>
-              onChange("H_min", e.target.value === "" ? "" : parseFloat(e.target.value))
+              onChange("nivel_min", e.target.value === "" ? "" : parseFloat(e.target.value))
             }
             placeholder="0"
             className="mt-1"
@@ -123,9 +123,9 @@ export const SuctionSystemForm = ({
             id="suc-H-max"
             type="number"
             step="0.1"
-            value={system.H_max}
+            value={system.nivel_max}
             onChange={(e) =>
-              onChange("H_max", e.target.value === "" ? "" : parseFloat(e.target.value))
+              onChange("nivel_max", e.target.value === "" ? "" : parseFloat(e.target.value))
             }
             placeholder="0"
             className="mt-1"
