@@ -89,7 +89,7 @@ const Index = () => {
 
   // Helper function to display value: show "" if value is 0 or null/undefined
   const displayValue = (val: number | string | undefined) => 
-    val === 0 || val === undefined ? "" : val;
+    val === 0 || val === undefined || val === "" ? "" : val;
 
   // Helper function to handle number input changes for the main form
   const handleNumberChange = (
@@ -367,7 +367,14 @@ const Index = () => {
   const handleAtmPressureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "") {
-      handleNumberChange(e, "pressao_atm");
+      // Store "" if input is empty
+      setFormData((prev) => ({
+        ...prev,
+        fluido: {
+          ...prev.fluido,
+          pressao_atm: "",
+        },
+      }));
     } else {
       const parsedValue = parseFloat(value);
       // Convert kPa to Pa for storage

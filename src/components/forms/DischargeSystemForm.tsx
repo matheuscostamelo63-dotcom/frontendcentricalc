@@ -53,7 +53,7 @@ export const DischargeSystemForm = ({
 
   // Helper function to display value: show "" if value is 0 or null/undefined
   const displayValue = (val: number | string | undefined) => 
-    val === 0 || val === undefined ? "" : val;
+    val === 0 || val === undefined || val === "" ? "" : val;
 
   // Helper function to handle number input changes for the system
   const handleSystemNumberChange = (
@@ -73,7 +73,7 @@ export const DischargeSystemForm = ({
   const handlePressureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "") {
-      onChange(index, "pressao_manometrica", "");
+      onChange(index, "pressao_manometrica", ""); // Store "" if input is empty
     } else {
       const parsedValue = parseFloat(value);
       // Convert bar to Pa for storage
@@ -82,9 +82,9 @@ export const DischargeSystemForm = ({
   };
 
   // Custom display for pressure (Pa to bar conversion)
-  const displayPressure = (pa: number | undefined) => {
-    if (pa === 0 || pa === undefined) return "";
-    return (pa / 100000).toFixed(2);
+  const displayPressure = (pa: number | string | undefined) => {
+    if (pa === 0 || pa === undefined || pa === "") return "";
+    return (Number(pa) / 100000).toFixed(2);
   };
 
   return (
