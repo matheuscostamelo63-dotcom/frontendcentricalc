@@ -173,25 +173,6 @@ const Sobre = () => {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações Técnicas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              <strong>Versão:</strong> 1.0.0
-            </p>
-            <p className="text-sm text-muted-foreground">
-              <strong>Backend API:</strong> Sistema de cálculo baseado em métodos
-              numéricos para análise hidráulica
-            </p>
-            <p className="text-sm text-muted-foreground">
-              <strong>Normas:</strong> Cálculos baseados em normas técnicas de
-              engenharia hidráulica
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
