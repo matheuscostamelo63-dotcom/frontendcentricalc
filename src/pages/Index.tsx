@@ -24,9 +24,10 @@ import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 
 // Form data type that allows empty strings for number inputs
-type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido"> & {
+type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "Z_bomba" | "fluido"> & {
   Q: number | string;
   NPSHr: number | string;
+  Z_bomba: number | string; // Adicionado Z_bomba
   fluido: {
     densidade: number | string;
     viscosidade: number | string;
@@ -48,6 +49,7 @@ const Index = () => {
     usuario: "",
     Q: "",
     NPSHr: "",
+    Z_bomba: 0, // Valor inicial 0
     fluido: {
       densidade: 998,
       viscosidade: 1.0,
@@ -191,6 +193,7 @@ const Index = () => {
         ...formData,
         Q: conversions.m3hToM3s(Number(formData.Q) || 0),
         NPSHr: Number(formData.NPSHr) || 0,
+        Z_bomba: Number(formData.Z_bomba) || 0, // Incluindo Z_bomba
         fluido: {
           ...formData.fluido,
           densidade: Number(formData.fluido.densidade) || 998,
@@ -274,6 +277,7 @@ const Index = () => {
       usuario: "",
       Q: "",
       NPSHr: "",
+      Z_bomba: 0, // Reset Z_bomba
       fluido: {
         densidade: 998,
         viscosidade: 1.0,
@@ -403,6 +407,26 @@ const Index = () => {
                   className="mt-1"
                 />
               </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="z-bomba">Cota da Linha de Centro da Bomba (m)</Label>
+                <Input
+                  id="z-bomba"
+                  type="number"
+                  step="0.1"
+                  value={formData.Z_bomba}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      Z_bomba: e.target.value === "" ? "" : parseFloat(e.target.value),
+                    }))
+                  }
+                  placeholder="0"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Esta é a referência zero para o cálculo dos desníveis geométricos.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -531,6 +555,9 @@ const Index = () => {
                     }))
                   }
                 />
+                <p className="text-sm text-muted-foreground mt-4">
+                  Nota: Os níveis do reservatório de sucção devem ser cotas absolutas (Z). O desnível geométrico de sucção será calculado como Z_reservatório - Z_bomba.
+                </p>
               </CardContent>
             </CollapsibleContent>
           </Card>
@@ -559,6 +586,9 @@ const Index = () => {
                 canRemove={formData.recalque.length > 1}
               />
             ))}
+            <p className="text-sm text-muted-foreground mt-4">
+              Nota: Os níveis dos reservatórios de recalque devem ser cotas absolutas (Z). O desnível geométrico de recalque será calculado como Z_reservatório - Z_bomba.
+            </p>
           </CardContent>
         </Card>
 

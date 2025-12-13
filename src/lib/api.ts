@@ -43,6 +43,7 @@ export interface CalculationInput {
   usuario: string;
   Q: number;
   NPSHr: number;
+  Z_bomba: number; // Novo campo: Cota da linha de centro do rotor da bomba (m)
   fluido: FluidParameters;
   suc: SuctionSystem;
   recalque: DischargeSystem[];
