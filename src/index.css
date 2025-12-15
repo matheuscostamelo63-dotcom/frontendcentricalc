@@ -125,7 +125,7 @@ All colors MUST be HSL.
       transparent 50%
     );
     background-size: 400% 400%;
-    animation: fluid-movement 60s ease infinite;
+    animation: fluid-movement 40s ease infinite;
   }
   
   .dark body {
