@@ -80,7 +80,7 @@ const Index = () => {
           {
             L: 0,
             D: 0,
-            material: "",
+            material: materials[0]?.id || "",
             conexoes: 0,
           },
         ],
@@ -402,240 +402,237 @@ const Index = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna de Formulário (2/3 da largura em telas grandes) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Project Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações do Projeto</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="project-name">Nome do Projeto</Label>
-                  <Input
-                    id="project-name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    placeholder="Digite o nome do projeto"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="usuario">Usuário/Responsável</Label>
-                  <Input
-                    id="usuario"
-                    type="email"
-                    value={formData.usuario}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, usuario: e.target.value }))
-                    }
-                    placeholder="email@exemplo.com"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="vazao">Vazão Desejada (m³/h)</Label>
-                  <Input
-                    id="vazao"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={displayValue(formData.Q)}
-                    onChange={(e) => handleNumberChange(e, "Q")}
-                    placeholder="0"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="npshr">NPSHr (m.c.a)</Label>
-                  <Input
-                    id="npshr"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={displayValue(formData.NPSHr)}
-                    onChange={(e) => handleNumberChange(e, "NPSHr")}
-                    placeholder="0"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Fluid Parameters */}
-          <Collapsible defaultOpen>
-            <Card>
-              <CardHeader>
-                <CollapsibleTrigger className="w-full flex justify-between items-center">
-                  <CardTitle className="text-left">Parâmetros do Fluido</CardTitle>
-                  <RefreshCw className="h-4 w-4 text-muted-foreground" />
-                </CollapsibleTrigger>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="densidade">Densidade (kg/m³)</Label>
-                      <Input
-                        id="densidade"
-                        type="number"
-                        step="0.1"
-                        value={displayValue(formData.fluido.densidade)}
-                        onChange={(e) => handleNumberChange(e, "densidade")}
-                        placeholder="998"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="viscosidade">Viscosidade (cP)</Label>
-                      <Input
-                        id="viscosidade"
-                        type="number"
-                        step="0.01"
-                        value={displayValue(formData.fluido.viscosidade)}
-                        onChange={(e) => handleNumberChange(e, "viscosidade")}
-                        placeholder="1.0"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="temperatura">Temperatura (°C)</Label>
-                      <Input
-                        id="temperatura"
-                        type="number"
-                        step="0.1"
-                        value={displayValue(formData.fluido.temperatura)}
-                        onChange={(e) => handleNumberChange(e, "temperatura")}
-                        placeholder="20"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="pressao-atm">Pressão Atmosférica (kPa)</Label>
-                      <Input
-                        id="pressao-atm"
-                        type="number"
-                        step="0.1"
-                        value={displayAtmPressure(formData.fluido.pressao_atm)}
-                        onChange={handleAtmPressureChange}
-                        placeholder="101.325"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Nota: A pressão de vapor é calculada automaticamente com base na
-                    temperatura da água.
-                  </p>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Suction System */}
-          <Collapsible defaultOpen>
-            <Card>
-              <CardHeader>
-                <CollapsibleTrigger className="w-full flex justify-between items-center">
-                  <CardTitle className="text-left">Sistema de Sucção</CardTitle>
-                  <RefreshCw className="h-4 w-4 text-muted-foreground" />
-                </CollapsibleTrigger>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent>
-                  <SuctionSystemForm
-                    system={formData.suc}
-                    materials={materials}
-                    onChange={(field, value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        suc: { ...prev.suc, [field]: value },
-                      }))
-                    }
-                  />
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Discharge Systems */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Sistemas de Recalque</CardTitle>
-                <Button onClick={addDischargeSystem} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Adicionar Destino
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {formData.recalque.map((system, index) => (
-                <DischargeSystemForm
-                  key={index}
-                  system={system}
-                  index={index}
-                  materials={materials}
-                  onChange={updateDischargeSystem}
-                  onRemove={removeDischargeSystem}
-                  canRemove={formData.recalque.length > 1}
+      <div className="space-y-6">
+        {/* Project Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações do Projeto</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="project-name">Nome do Projeto</Label>
+                <Input
+                  id="project-name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="Digite o nome do projeto"
+                  className="mt-1"
                 />
-              ))}
-            </CardContent>
-          </Card>
+              </div>
+              <div>
+                <Label htmlFor="usuario">Usuário/Responsável</Label>
+                <Input
+                  id="usuario"
+                  type="email"
+                  value={formData.usuario}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, usuario: e.target.value }))
+                  }
+                  placeholder="email@exemplo.com"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="vazao">Vazão Desejada (m³/h)</Label>
+                <Input
+                  id="vazao"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={displayValue(formData.Q)}
+                  onChange={(e) => handleNumberChange(e, "Q")}
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="npshr">NPSHr (m.c.a)</Label>
+                <Input
+                  id="npshr"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={displayValue(formData.NPSHr)}
+                  onChange={(e) => handleNumberChange(e, "NPSHr")}
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 justify-end">
-            <Button variant="outline" onClick={handleReset}>
-              Limpar Formulário
-            </Button>
-            <Button
-              onClick={handleCalculate}
-              disabled={calculating}
-              className="gap-2"
-            >
-              {calculating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Calculando...
-                </>
-              ) : (
-                <>
-                  <Calculator className="h-4 w-4" />
-                  Calcular
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Coluna de Resultados (1/3 da largura em telas grandes) */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-8">
+        {/* Fluid Parameters */}
+        <Collapsible defaultOpen>
+          <Card>
             <CardHeader>
-              <CardTitle>Resultados do Dimensionamento</CardTitle>
+              <CollapsibleTrigger className="w-full flex justify-between items-center">
+                <CardTitle className="text-left">Parâmetros do Fluido</CardTitle>
+                <RefreshCw className="h-4 w-4 text-muted-foreground" />
+              </CollapsibleTrigger>
             </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-40">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="densidade">Densidade (kg/m³)</Label>
+                    <Input
+                      id="densidade"
+                      type="number"
+                      step="0.1"
+                      value={displayValue(formData.fluido.densidade)}
+                      onChange={(e) => handleNumberChange(e, "densidade")}
+                      placeholder="998"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="viscosidade">Viscosidade (cP)</Label>
+                    <Input
+                      id="viscosidade"
+                      type="number"
+                      step="0.01"
+                      value={displayValue(formData.fluido.viscosidade)}
+                      onChange={(e) => handleNumberChange(e, "viscosidade")}
+                      placeholder="1.0"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="temperatura">Temperatura (°C)</Label>
+                    <Input
+                      id="temperatura"
+                      type="number"
+                      step="0.1"
+                      value={displayValue(formData.fluido.temperatura)}
+                      onChange={(e) => handleNumberChange(e, "temperatura")}
+                      placeholder="20"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pressao-atm">Pressão Atmosférica (kPa)</Label>
+                    <Input
+                      id="pressao-atm"
+                      type="number"
+                      step="0.1"
+                      value={displayAtmPressure(formData.fluido.pressao_atm)}
+                      onChange={handleAtmPressureChange}
+                      placeholder="101.325"
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
-              ) : result ? (
-                <ResultsDisplay result={result} />
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  Preencha o formulário e clique em "Calcular" para visualizar os
-                  resultados aqui.
+                <p className="text-sm text-muted-foreground">
+                  Nota: A pressão de vapor é calculada automaticamente com base na
+                  temperatura da água.
                 </p>
-              )}
-            </CardContent>
+              </CardContent>
+            </CollapsibleContent>
           </Card>
+        </Collapsible>
+
+        {/* Suction System */}
+        <Collapsible defaultOpen>
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger className="w-full flex justify-between items-center">
+                <CardTitle className="text-left">Sistema de Sucção</CardTitle>
+                <RefreshCw className="h-4 w-4 text-muted-foreground" />
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
+                <SuctionSystemForm
+                  system={formData.suc}
+                  materials={materials}
+                  onChange={(field, value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      suc: { ...prev.suc, [field]: value },
+                    }))
+                  }
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        {/* Discharge Systems */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Sistemas de Recalque</CardTitle>
+              <Button onClick={addDischargeSystem} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Adicionar Destino
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {formData.recalque.map((system, index) => (
+              <DischargeSystemForm
+                key={index}
+                system={system}
+                index={index}
+                materials={materials}
+                onChange={updateDischargeSystem}
+                onRemove={removeDischargeSystem}
+                canRemove={formData.recalque.length > 1}
+              />
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 justify-end">
+          <Button variant="outline" onClick={handleReset}>
+            Limpar Formulário
+          </Button>
+          <Button
+            onClick={handleCalculate}
+            disabled={calculating}
+            className="gap-2"
+          >
+            {calculating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Calculando...
+              </>
+            ) : (
+              <>
+                <Calculator className="h-4 w-4" />
+                Calcular
+              </>
+            )}
+          </Button>
         </div>
+      </div>
+
+      {/* Results section moved below the form */}
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Resultados do Dimensionamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : result ? (
+              <ResultsDisplay result={result} />
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Preencha o formulário e clique em "Calcular" para visualizar os
+                resultados aqui.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
