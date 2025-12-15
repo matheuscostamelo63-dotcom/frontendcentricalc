@@ -613,27 +613,24 @@ const Index = () => {
       </div>
 
       {/* Results section moved below the form */}
-      <div className="mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Resultados do Dimensionamento</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center h-40">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : result ? (
-              <ResultsDisplay result={result} />
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                Preencha o formulário e clique em "Calcular" para visualizar os
-                resultados aqui.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {(loading || result) && (
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Resultados do Dimensionamento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="flex items-center justify-center h-40">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : result ? (
+                <ResultsDisplay result={result} />
+              ) : null}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
