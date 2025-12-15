@@ -101,7 +101,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         // Custom animation for fluid movement (reduced duration for better visibility)
-        "fluid-movement": "fluid-movement 40s ease infinite",
+        "fluid-movement": "fluid-movement 20s ease infinite",
       },
       spacing: {
         '50': '12.5rem', // 200px
