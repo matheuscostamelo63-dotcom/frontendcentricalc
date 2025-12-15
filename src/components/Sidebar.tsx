@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 
 export const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Start closed on mobile
 
   return (
     <>
@@ -13,17 +13,17 @@ export const Sidebar = () => {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden"
+        className="fixed top-4 left-4 z-50 lg:hidden bg-card border border-border"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X /> : <Menu />}
+        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
       {/* Sidebar */}
       <aside
         className={`fixed left-0 top-0 h-screen bg-card border-r border-border transition-transform duration-300 z-40 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 w-64`}
+        } lg:translate-x-0 w-64 flex flex-col`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -32,10 +32,9 @@ export const Sidebar = () => {
               <img
                 src="/logo.png"
                 alt="CentriCalc Logo"
-                className="h-50 w-auto"
+                className="h-10 w-auto" // Reduced logo size for better fit
               />
             </div>
-            {/* Texto descritivo removido */}
           </div>
 
           {/* Navigation */}
@@ -44,7 +43,8 @@ export const Sidebar = () => {
               to="/"
               end
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition-colors"
-              activeClassName="bg-primary text-primary-foreground hover:bg-primary"
+              activeClassName="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setIsOpen(false)} // Close sidebar on navigation (mobile)
             >
               <Calculator className="h-5 w-5" />
               <span className="font-medium">Novo Dimensionamento</span>
@@ -53,7 +53,8 @@ export const Sidebar = () => {
             <NavLink
               to="/meus-projetos"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition-colors"
-              activeClassName="bg-primary text-primary-foreground hover:bg-primary"
+              activeClassName="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setIsOpen(false)}
             >
               <FolderOpen className="h-5 w-5" />
               <span className="font-medium">Meus Projetos</span>
@@ -62,7 +63,8 @@ export const Sidebar = () => {
             <NavLink
               to="/sobre"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition-colors"
-              activeClassName="bg-primary text-primary-foreground hover:bg-primary"
+              activeClassName="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setIsOpen(false)}
             >
               <FileText className="h-5 w-5" />
               <span className="font-medium">Sobre</span>
