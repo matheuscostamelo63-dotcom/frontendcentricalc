@@ -113,5 +113,31 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Fluid Background Effect */
+    background-image: radial-gradient(
+      at 0% 0%,
+      hsl(var(--primary) / 0.1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 100% 100%,
+      hsl(var(--accent) / 0.1) 0px,
+      transparent 50%
+    );
+    background-size: 400% 400%;
+    animation: fluid-movement 60s ease infinite;
+  }
+  
+  .dark body {
+    background-image: radial-gradient(
+      at 0% 0%,
+      hsl(var(--primary) / 0.15) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 100% 100%,
+      hsl(var(--accent) / 0.15) 0px,
+      transparent 50%
+    );
   }
 }
