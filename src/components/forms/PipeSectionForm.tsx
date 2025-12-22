@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Material, PipeSection } from "@/lib/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PipeSectionFormProps {
   section: PipeSection;
@@ -49,7 +54,7 @@ export const PipeSectionForm = ({
 
   // Helper function to display value: show "" if value is 0 or null/undefined
   const displayValue = (val: number | string | undefined) => 
-    val === 0 || val === undefined ? "" : val;
+    val === 0 || val === undefined || val === "" ? "" : val;
 
   return (
     <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
@@ -134,9 +139,25 @@ export const PipeSectionForm = ({
         </div>
 
         <div>
-          <Label htmlFor={`conexoes-${index}`}>
-            Conexões (equiv. cotovelos 90°)
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor={`conexoes-${index}`}>
+              Conexões (equiv. cotovelos 90°)
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p className="font-semibold mb-1">Conexões Equivalentes</p>
+                <p className="text-sm">
+                  Este valor representa a soma de todas as singularidades (válvulas, curvas, tês, etc.) presentes neste trecho, convertidas em número equivalente de cotovelos de 90°.
+                </p>
+                <p className="text-sm mt-2">
+                  <strong>Exemplo:</strong> 1 Válvula de Gaveta (equiv. 12 cotovelos) + 2 Curvas de 45° (equiv. 0.5 cotovelo cada) = 13 cotovelos equivalentes.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Input
             id={`conexoes-${index}`}
             type="number"
