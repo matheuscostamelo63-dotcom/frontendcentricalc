@@ -17,23 +17,35 @@ import {
   CalculationInput,
   CalculationResult,
   DischargeSystem,
+  SuctionSystem,
   PipeSection,
 } from "@/lib/api";
-import { SuctionSystemForm } from "@/components/forms/SuctionSystemForm";
+import { SuctionSystemItemForm } from "@/components/forms/SuctionSystemItemForm";
 import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { Separator } from "@/components/ui/separator";
 
 // Form data type that allows empty strings for number inputs
-type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido"> & {
+type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido" | "suc"> & {
   Q: number | string;
   NPSHr: number | string;
   fluido: {
     densidade: number | string;
     viscosidade: number | string;
     temperatura: number | string;
-    pressao_atm: number | string; // Changed to allow string for display logic
+    pressao_atm: number | string;
   };
+  suc: (Omit<SuctionSystem, keyof SuctionSystem> & {
+    nivel_nominal: number | string;
+    nivel_min: number | string;
+    nivel_max: number | string;
+    pressao_manometrica?: number | string;
+    trechos: (Omit<PipeSection, keyof PipeSection> & {
+      L: number | string;
+      D: number | string;
+      conexoes: number | string;
+    })[];
+  })[];
 };
 
 const Index = () => {
@@ -42,6 +54,23 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [result, setResult] = useState<CalculationResult | null>(null);
+
+  // Initial state for a single suction system
+  const initialSuctionSystem: FormDataInput['suc'][0] = {
+    succao_id: "Sucção 1",
+    tipo_reservatorio: "aberto",
+    nivel_nominal: 0,
+    nivel_min: 0,
+    nivel_max: 0,
+    trechos: [
+      {
+        L: 0,
+        D: 0,
+        material: "",
+        conexoes: 0,
+      },
+    ],
+  };
 
   // Form state
   const [formData, setFormData] = useState<FormDataInput>({
@@ -55,20 +84,7 @@ const Index = () => {
       temperatura: 20,
       pressao_atm: 101325,
     },
-    suc: {
-      tipo_reservatorio: "aberto",
-      nivel_nominal: 0,
-      nivel_min: 0,
-      nivel_max: 0,
-      trechos: [
-        {
-          L: 0,
-          D: 0,
-          material: "",
-          conexoes: 0,
-        },
-      ],
-    },
+    suc: [initialSuctionSystem], // Now an array
     recalque: [
       {
         destino_id: "Destino 1",
@@ -80,7 +96,7 @@ const Index = () => {
           {
             L: 0,
             D: 0,
-            material: materials[0]?.id || "",
+            material: "",
             conexoes: 0,
           },
         ],
@@ -134,20 +150,21 @@ const Index = () => {
       
       // Set default material for existing sections
       if (data.length > 0) {
+        const defaultMaterialId = data[0].id;
         setFormData((prev) => ({
           ...prev,
-          suc: {
-            ...prev.suc,
-            trechos: prev.suc.trechos.map((t) => ({
+          suc: prev.suc.map((s) => ({
+            ...s,
+            trechos: s.trechos.map((t) => ({
               ...t,
-              material: t.material || data[0].id,
+              material: t.material || defaultMaterialId,
             })),
-          },
+          })),
           recalque: prev.recalque.map((r) => ({
             ...r,
             trechos: r.trechos.map((t) => ({
               ...t,
-              material: t.material || data[0].id,
+              material: t.material || defaultMaterialId,
             })),
           })),
         }));
@@ -163,6 +180,52 @@ const Index = () => {
     }
   };
 
+  // --- Suction System Management ---
+  const addSuctionSystem = () => {
+    const newSystem: FormDataInput['suc'][0] = {
+      succao_id: `Sucção ${formData.suc.length + 1}`,
+      tipo_reservatorio: "aberto",
+      nivel_nominal: 0,
+      nivel_min: 0,
+      nivel_max: 0,
+      trechos: [
+        {
+          L: 0,
+          D: 0,
+          material: materials[0]?.id || "",
+          conexoes: 0,
+        },
+      ],
+    };
+    setFormData((prev) => ({
+      ...prev,
+      suc: [...prev.suc, newSystem],
+    }));
+  };
+
+  const removeSuctionSystem = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      suc: prev.suc.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateSuctionSystem = (
+    index: number,
+    field: keyof SuctionSystem,
+    value: any
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      suc: prev.suc.map((system, i) =>
+        i === index ? { ...system, [field]: value } : system
+      ),
+    }));
+  };
+  // --- End Suction System Management ---
+
+
+  // --- Discharge System Management ---
   const addDischargeSystem = () => {
     const newSystem: DischargeSystem = {
       destino_id: `Destino ${formData.recalque.length + 1}`,
@@ -204,6 +267,8 @@ const Index = () => {
       ),
     }));
   };
+  // --- End Discharge System Management ---
+
 
   const handleCalculate = async () => {
     setCalculating(true);
@@ -233,19 +298,21 @@ const Index = () => {
           temperatura: Number(formData.fluido.temperatura) || 20,
           pressao_atm: Number(formData.fluido.pressao_atm) || 101325,
         },
-        suc: {
-          ...formData.suc,
-          nivel_nominal: Number(formData.suc.nivel_nominal) || 0,
-          nivel_min: Number(formData.suc.nivel_min) || 0,
-          nivel_max: Number(formData.suc.nivel_max) || 0,
-          pressao_manometrica: Number(formData.suc.pressao_manometrica) || 0,
-          trechos: formData.suc.trechos.map((t) => ({
+        // Convert Suction Systems
+        suc: formData.suc.map((s) => ({
+          ...s,
+          nivel_nominal: Number(s.nivel_nominal) || 0,
+          nivel_min: Number(s.nivel_min) || 0,
+          nivel_max: Number(s.nivel_max) || 0,
+          pressao_manometrica: Number(s.pressao_manometrica) || 0,
+          trechos: s.trechos.map((t) => ({
             ...t,
             D: conversions.mmToM(Number(t.D) || 0),
             L: Number(t.L) || 0,
             conexoes: Number(t.conexoes) || 0,
           })),
-        },
+        })) as SuctionSystem[], // Cast to ensure correct type after conversion
+        // Convert Discharge Systems
         recalque: formData.recalque.map((r) => ({
           ...r,
           nivel_nominal: Number(r.nivel_nominal) || 0,
@@ -258,7 +325,7 @@ const Index = () => {
             L: Number(t.L) || 0,
             conexoes: Number(t.conexoes) || 0,
           })),
-        })),
+        })) as DischargeSystem[], // Cast to ensure correct type after conversion
       };
 
       const calculationResult = await api.calcular(dataToSend);
@@ -313,6 +380,7 @@ const Index = () => {
   };
 
   const handleReset = () => {
+    const defaultMaterialId = materials[0]?.id || "";
     setFormData({
       name: "",
       usuario: "",
@@ -324,20 +392,23 @@ const Index = () => {
         temperatura: 20,
         pressao_atm: 101325,
       },
-      suc: {
-        tipo_reservatorio: "aberto",
-        nivel_nominal: 0,
-        nivel_min: 0,
-        nivel_max: 0,
-        trechos: [
-          {
-            L: 0,
-            D: 0,
-            material: materials[0]?.id || "",
-            conexoes: 0,
-          },
-        ],
-      },
+      suc: [
+        {
+          succao_id: "Sucção 1",
+          tipo_reservatorio: "aberto",
+          nivel_nominal: 0,
+          nivel_min: 0,
+          nivel_max: 0,
+          trechos: [
+            {
+              L: 0,
+              D: 0,
+              material: defaultMaterialId,
+              conexoes: 0,
+            },
+          ],
+        },
+      ],
       recalque: [
         {
           destino_id: "Destino 1",
@@ -349,7 +420,7 @@ const Index = () => {
             {
               L: 0,
               D: 0,
-              material: materials[0]?.id || "",
+              material: defaultMaterialId,
               conexoes: 0,
             },
           ],
@@ -535,31 +606,31 @@ const Index = () => {
           </Card>
         </Collapsible>
 
-        {/* Suction System */}
-        <Collapsible defaultOpen>
-          <Card>
-            <CardHeader>
-              <CollapsibleTrigger className="w-full flex justify-between items-center">
-                <CardTitle className="text-left">Sistema de Sucção</CardTitle>
-                <RefreshCw className="h-4 w-4 text-muted-foreground" />
-              </CollapsibleTrigger>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent>
-                <SuctionSystemForm
-                  system={formData.suc}
-                  materials={materials}
-                  onChange={(field, value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      suc: { ...prev.suc, [field]: value },
-                    }))
-                  }
-                />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+        {/* Suction Systems (Multiple) */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Sistemas de Sucção</CardTitle>
+              <Button onClick={addSuctionSystem} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Adicionar Sucção
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {formData.suc.map((system, index) => (
+              <SuctionSystemItemForm
+                key={index}
+                system={system as SuctionSystem}
+                index={index}
+                materials={materials}
+                onChange={updateSuctionSystem}
+                onRemove={removeSuctionSystem}
+                canRemove={formData.suc.length > 1}
+              />
+            ))}
+          </CardContent>
+        </Card>
 
         {/* Discharge Systems */}
         <Card>

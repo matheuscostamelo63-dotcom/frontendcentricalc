@@ -97,6 +97,20 @@ const ProjectDetails = () => {
     });
   };
 
+  // Safely access the first suction system ID, or default if suc is not an array or empty
+  const firstSuctionId = Array.isArray(project.inputData.suc) 
+    ? project.inputData.suc[0]?.succao_id || 'N/A'
+    : 'N/A';
+  
+  const suctionCount = Array.isArray(project.inputData.suc) 
+    ? project.inputData.suc.length
+    : 1;
+
+  const dischargeCount = Array.isArray(project.inputData.recalque) 
+    ? project.inputData.recalque.length
+    : 1;
+
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <Button variant="ghost" onClick={() => navigate("/meus-projetos")} className="mb-6 gap-2">
@@ -119,7 +133,7 @@ const ProjectDetails = () => {
           <CardHeader>
             <CardTitle>Dados de Entrada Resumidos</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="p-3 bg-secondary rounded-lg">
               <p className="text-sm text-muted-foreground">Vazão (m³/h)</p>
               <p className="font-semibold">{project.inputData.Q}</p>
@@ -129,9 +143,15 @@ const ProjectDetails = () => {
               <p className="font-semibold">{project.inputData.NPSHr}</p>
             </div>
             <div className="p-3 bg-secondary rounded-lg">
-              <p className="text-sm text-muted-foreground">Fluido</p>
+              <p className="text-sm text-muted-foreground">Sucções</p>
               <p className="font-semibold">
-                {project.inputData.fluido.densidade} kg/m³
+                {suctionCount} ({firstSuctionId})
+              </p>
+            </div>
+            <div className="p-3 bg-secondary rounded-lg">
+              <p className="text-sm text-muted-foreground">Destinos</p>
+              <p className="font-semibold">
+                {dischargeCount}
               </p>
             </div>
           </CardContent>

@@ -23,6 +23,7 @@ export interface ReservoirData {
 }
 
 export interface SuctionSystem extends ReservoirData {
+  succao_id: string; // Identificador para múltiplas sucções
   trechos: PipeSection[];
 }
 
@@ -44,7 +45,7 @@ export interface CalculationInput {
   Q: number;
   NPSHr: number;
   fluido: FluidParameters;
-  suc: SuctionSystem;
+  suc: SuctionSystem[]; // Alterado para array
   recalque: DischargeSystem[];
 }
 
