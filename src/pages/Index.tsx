@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calculator, Plus, Loader2, RefreshCw } from "lucide-react";
+import { Calculator, Plus, Loader2, RefreshCw, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,11 @@ import { SuctionSystemItemForm } from "@/components/forms/SuctionSystemItemForm"
 import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Form data type that allows empty strings for number inputs
 type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido" | "suc"> & {
@@ -520,7 +525,23 @@ const Index = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="npshr">NPSHr (m.c.a)</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="npshr">NPSHr (m.c.a)</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">NPSHr (Net Positive Suction Head Required)</p>
+                      <p className="text-sm">
+                        É a altura manométrica de sucção mínima requerida pela bomba para evitar a cavitação.
+                      </p>
+                      <p className="text-sm mt-2">
+                        <strong>Onde encontrar:</strong> Este valor é fornecido pelo fabricante da bomba e deve ser lido na curva de desempenho da bomba para a vazão desejada (Q).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Input
                   id="npshr"
                   type="number"
