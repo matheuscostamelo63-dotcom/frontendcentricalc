@@ -9,7 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"; // Importando toast do Sonner
 import {
   api,
   conversions,
@@ -24,11 +24,6 @@ import { SuctionSystemItemForm } from "@/components/forms/SuctionSystemItemForm"
 import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { MobileHelpDrawer } from "@/components/MobileHelpDrawer";
 
 // Form data type that allows empty strings for number inputs
@@ -55,7 +50,6 @@ type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido" | "suc"> & 
 };
 
 const Index = () => {
-  const { toast } = useToast();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -176,11 +170,7 @@ const Index = () => {
         }));
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os materiais.",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar os materiais.");
     } finally {
       setLoading(false);
     }
@@ -282,11 +272,7 @@ const Index = () => {
 
     // Basic validation check for required fields (Q and NPSHr)
     if (formData.Q === "" || formData.NPSHr === "") {
-      toast({
-        title: "Erro de Validação",
-        description: "Vazão Desejada e NPSHr são campos obrigatórios.",
-        variant: "destructive",
-      });
+      toast.error("Vazão Desejada e NPSHr são campos obrigatórios.");
       setCalculating(false);
       return;
     }
@@ -363,23 +349,12 @@ const Index = () => {
 
 
       if (calculationResult.status === "ok") {
-        toast({
-          title: "Sucesso",
-          description: "Cálculo realizado com sucesso e projeto salvo!",
-        });
+        toast.success("Cálculo realizado com sucesso e projeto salvo!");
       } else if (calculationResult.status === "warning") {
-        toast({
-          title: "Aviso",
-          description: "Cálculo concluído com avisos e projeto salvo.",
-          variant: "default",
-        });
+        toast.warning("Cálculo concluído com avisos e projeto salvo.");
       }
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao realizar cálculo.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Erro ao realizar cálculo.");
     } finally {
       setCalculating(false);
     }

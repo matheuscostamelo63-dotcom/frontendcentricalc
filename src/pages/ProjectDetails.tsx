@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { CalculationResult } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"; // Importando toast do Sonner
 
 // Define a estrutura completa do projeto salvo
 interface SavedProjectFull {
@@ -22,7 +22,6 @@ interface SavedProjectFull {
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [project, setProject] = useState<SavedProjectFull | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,14 +30,10 @@ const ProjectDetails = () => {
       loadProject(id);
     } else {
       setLoading(false);
-      toast({
-        title: "Erro",
-        description: "ID do projeto não fornecido.",
-        variant: "destructive",
-      });
+      toast.error("ID do projeto não fornecido.");
       navigate("/meus-projetos");
     }
-  }, [id, navigate, toast]);
+  }, [id, navigate]);
 
   const loadProject = (projectId: string) => {
     const savedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
@@ -47,11 +42,7 @@ const ProjectDetails = () => {
     if (foundProject) {
       setProject(foundProject);
     } else {
-      toast({
-        title: "Erro",
-        description: "Projeto não encontrado.",
-        variant: "destructive",
-      });
+      toast.error("Projeto não encontrado.");
       navigate("/meus-projetos");
     }
     setLoading(false);
