@@ -29,6 +29,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { MobileHelpDrawer } from "@/components/MobileHelpDrawer";
 
 // Form data type that allows empty strings for number inputs
 type FormDataInput = Omit<CalculationInput, "Q" | "NPSHr" | "fluido" | "suc"> & {
@@ -527,20 +528,15 @@ const Index = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <Label htmlFor="npshr">NPSHr (m.c.a)</Label>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">NPSHr (Net Positive Suction Head Required)</p>
-                      <p className="text-sm">
-                        É a altura manométrica de sucção mínima requerida pela bomba para evitar a cavitação.
-                      </p>
-                      <p className="text-sm mt-2">
-                        <strong>Onde encontrar:</strong> Este valor é fornecido pelo fabricante da bomba e deve ser lido na curva de desempenho da bomba para a vazão desejada (Q).
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <MobileHelpDrawer title="NPSHr (Net Positive Suction Head Required)">
+                    <p className="font-semibold mb-1">NPSHr (Net Positive Suction Head Required)</p>
+                    <p className="text-sm">
+                      É a altura manométrica de sucção mínima requerida pela bomba para evitar a cavitação.
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Onde encontrar:</strong> Este valor é fornecido pelo fabricante da bomba e deve ser lido na curva de desempenho da bomba para a vazão desejada (Q).
+                    </p>
+                  </MobileHelpDrawer>
                 </div>
                 <Input
                   id="npshr"

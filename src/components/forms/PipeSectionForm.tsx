@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { MobileHelpDrawer } from "@/components/MobileHelpDrawer";
 
 interface PipeSectionFormProps {
   section: PipeSection;
@@ -143,20 +144,15 @@ export const PipeSectionForm = ({
             <Label htmlFor={`conexoes-${index}`}>
               Conexões (equiv. cotovelos 90°)
             </Label>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p className="font-semibold mb-1">Conexões Equivalentes</p>
-                <p className="text-sm">
-                  Este valor representa a soma de todas as singularidades (válvulas, curvas, tês, etc.) presentes neste trecho, convertidas em número equivalente de cotovelos de 90°.
-                </p>
-                <p className="text-sm mt-2">
-                  <strong>Exemplo:</strong> 1 Válvula de Gaveta (equiv. 12 cotovelos) + 2 Curvas de 45° (equiv. 0.5 cotovelo cada) = 13 cotovelos equivalentes.
-                </p>
-              </TooltipContent>
-            </Tooltip>
+            <MobileHelpDrawer title="Conexões Equivalentes">
+              <p className="font-semibold mb-1">Conexões Equivalentes</p>
+              <p className="text-sm">
+                Este valor representa a soma de todas as singularidades (válvulas, curvas, tês, etc.) presentes neste trecho, convertidas em número equivalente de cotovelos de 90°.
+              </p>
+              <p className="text-sm mt-2">
+                <strong>Exemplo:</strong> 1 Válvula de Gaveta (equiv. 12 cotovelos) + 2 Curvas de 45° (equiv. 0.5 cotovelo cada) = 13 cotovelos equivalentes.
+              </p>
+            </MobileHelpDrawer>
           </div>
           <Input
             id={`conexoes-${index}`}
