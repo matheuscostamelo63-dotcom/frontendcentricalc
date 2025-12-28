@@ -16,7 +16,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <BrowserRouter>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={300}>
           <Sonner />
           <div className="flex min-h-screen w-full bg-background">
             <Sidebar />
