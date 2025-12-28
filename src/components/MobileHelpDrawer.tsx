@@ -13,7 +13,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useMounted } from "@/hooks/use-mounted";
 
 interface MobileHelpDrawerProps {
@@ -24,16 +24,31 @@ interface MobileHelpDrawerProps {
 export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => {
   const isMobile = useIsMobile();
   const mounted = useMounted();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // 1. Cleanup: Garante que o portal feche ao desmontar o componente.
+  useEffect(() => {
+    return () => {
+      // Se o componente for desmontado (ex: mudança de rota ou remoção de item da lista),
+      // forçamos o fechamento do portal.
+      setIsOpen(false);
+    };
+  }, []);
+
+  // 2. Reset ao mudar de modo: Se o modo mobile/desktop mudar, forçamos o fechamento
+  // para evitar que o portal do modo anterior persista.
+  useEffect(() => {
+    setIsOpen(false);
+  }, [isMobile]);
+
 
   if (!mounted) {
-    // Retorna null para evitar problemas de hidratação e garantir que o componente
-    // que depende de 'window' e portais só seja renderizado no cliente.
     return null;
   }
 
   if (isMobile) {
     return (
-      <Drawer>
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-muted-foreground cursor-pointer">
             <HelpCircle className="h-4 w-4" />
@@ -53,12 +68,11 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
 
   // Desktop: Use standard Tooltip
   return (
-    <Tooltip>
+    <Tooltip open={isOpen} onOpenChange={setIsOpen}>
       <TooltipTrigger asChild>
         <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
-        {/* Envolve o conteúdo em um div simples para garantir que o nó raiz do TooltipContent seja estável */}
         <div className="space-y-2">
           {children}
         </div>
