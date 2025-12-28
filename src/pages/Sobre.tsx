@@ -20,10 +20,7 @@ const Sobre = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-foreground">
-              Este sistema (CentriCalc) foi desenvolvido para auxiliar engenheiros e técnicos no
-              dimensionamento preciso de sistemas de bombeamento centrífugo. A
-              ferramenta realiza cálculos complexos de forma automatizada,
-              considerando múltiplos parâmetros e condições operacionais.
+              O CentriCalc é um sistema desenvolvido para apoiar engenheiros e técnicos no dimensionamento preciso de sistemas de bombeamento centrífugo. A ferramenta automatiza cálculos hidráulicos complexos, integrando múltiplos parâmetros e diferentes condições operacionais, o que reduz erros, economiza tempo e aumenta a confiabilidade dos resultados.
             </p>
           </CardContent>
         </Card>
