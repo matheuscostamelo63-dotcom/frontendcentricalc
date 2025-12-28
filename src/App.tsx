@@ -15,9 +15,9 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <Sonner />
       <BrowserRouter>
         <TooltipProvider>
+          <Sonner />
           <div className="flex min-h-screen w-full bg-background">
             <Sidebar />
             <main className="flex-1 lg:ml-64 pt-4 md:pt-8">
