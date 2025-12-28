@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import React from "react";
+import { useMounted } from "@/hooks/use-mounted";
 
 interface MobileHelpDrawerProps {
   title: string;
@@ -22,6 +23,14 @@ interface MobileHelpDrawerProps {
 
 export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => {
   const isMobile = useIsMobile();
+  const mounted = useMounted();
+
+  if (!mounted) {
+    // Renderiza um placeholder leve no servidor/hidratação
+    return (
+      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help opacity-0" />
+    );
+  }
 
   if (isMobile) {
     return (
