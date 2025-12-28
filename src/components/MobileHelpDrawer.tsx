@@ -26,10 +26,9 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
   const mounted = useMounted();
 
   if (!mounted) {
-    // Renderiza um placeholder leve no servidor/hidratação
-    return (
-      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help opacity-0" />
-    );
+    // Retorna null para evitar problemas de hidratação e garantir que o componente
+    // que depende de 'window' e portais só seja renderizado no cliente.
+    return null;
   }
 
   if (isMobile) {
@@ -59,7 +58,10 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
         <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
-        {children}
+        {/* Envolve o conteúdo em um div simples para garantir que o nó raiz do TooltipContent seja estável */}
+        <div className="space-y-2">
+          {children}
+        </div>
       </TooltipContent>
     </Tooltip>
   );
