@@ -24,6 +24,7 @@ interface PipeSectionFormProps {
   onChange: (index: number, field: keyof PipeSection, value: any) => void;
   onRemove: (index: number) => void;
   canRemove: boolean;
+  parentId: string; // Novo: ID único do sistema pai (sucção/recalque)
 }
 
 export const PipeSectionForm = ({
@@ -33,6 +34,7 @@ export const PipeSectionForm = ({
   onChange,
   onRemove,
   canRemove,
+  parentId,
 }: PipeSectionFormProps) => {
   const selectedMaterial = Array.isArray(materials) 
     ? materials.find((m) => m.id === section.material)
@@ -57,6 +59,9 @@ export const PipeSectionForm = ({
   const displayValue = (val: number | string | undefined) => 
     val === 0 || val === undefined || val === "" ? "" : val;
 
+  // ID único para este trecho
+  const uniqueId = `${parentId}-trecho-${index}`;
+
   return (
     <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
       <div className="flex justify-between items-center">
@@ -77,9 +82,9 @@ export const PipeSectionForm = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`L-${index}`}>Comprimento (m)</Label>
+          <Label htmlFor={`${uniqueId}-L`}>Comprimento (m)</Label>
           <Input
-            id={`L-${index}`}
+            id={`${uniqueId}-L`}
             type="number"
             step="0.1"
             min="0"
@@ -91,9 +96,9 @@ export const PipeSectionForm = ({
         </div>
 
         <div>
-          <Label htmlFor={`D-${index}`}>Diâmetro (mm)</Label>
+          <Label htmlFor={`${uniqueId}-D`}>Diâmetro (mm)</Label>
           <Input
-            id={`D-${index}`}
+            id={`${uniqueId}-D`}
             type="number"
             step="0.1"
             min="0"
@@ -105,12 +110,12 @@ export const PipeSectionForm = ({
         </div>
 
         <div>
-          <Label htmlFor={`material-${index}`}>Material</Label>
+          <Label htmlFor={`${uniqueId}-material`}>Material</Label>
           <Select
             value={section.material}
             onValueChange={(value) => onChange(index, "material", value)}
           >
-            <SelectTrigger id={`material-${index}`} className="mt-1">
+            <SelectTrigger id={`${uniqueId}-material`} className="mt-1">
               <SelectValue placeholder="Selecione o material" />
             </SelectTrigger>
             <SelectContent>
@@ -124,11 +129,11 @@ export const PipeSectionForm = ({
         </div>
 
         <div>
-          <Label htmlFor={`rugosidade-${index}`}>
+          <Label htmlFor={`${uniqueId}-rugosidade`}>
             Rugosidade (mm) {selectedMaterial && `(padrão: ${selectedMaterial.rugosidade_mm})`}
           </Label>
           <Input
-            id={`rugosidade-${index}`}
+            id={`${uniqueId}-rugosidade`}
             type="number"
             step="0.001"
             min="0"
@@ -141,7 +146,7 @@ export const PipeSectionForm = ({
 
         <div>
           <div className="flex items-center gap-2">
-            <Label htmlFor={`conexoes-${index}`}>
+            <Label htmlFor={`${uniqueId}-conexoes`}>
               Conexões (equiv. cotovelos 90°)
             </Label>
             <MobileHelpDrawer title="Conexões Equivalentes">
@@ -155,7 +160,7 @@ export const PipeSectionForm = ({
             </MobileHelpDrawer>
           </div>
           <Input
-            id={`conexoes-${index}`}
+            id={`${uniqueId}-conexoes`}
             type="number"
             step="1"
             min="0"

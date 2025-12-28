@@ -88,6 +88,9 @@ export const SuctionSystemItemForm = ({
     return String(Number(pa) / 100000);
   };
 
+  // Unique ID prefix for this system
+  const systemIdPrefix = `suc-${index}`;
+
   return (
     <div className="border-2 border-primary/30 rounded-lg p-6 space-y-4 bg-card">
       <div className="flex justify-between items-center">
@@ -125,9 +128,9 @@ export const SuctionSystemItemForm = ({
       {isExpanded && (
         <>
           <div>
-            <Label htmlFor={`succao-id-${index}`}>Nome da Sucção</Label>
+            <Label htmlFor={`${systemIdPrefix}-id`}>Nome da Sucção</Label>
             <Input
-              id={`succao-id-${index}`}
+              id={`${systemIdPrefix}-id`}
               value={system.succao_id}
               onChange={(e) => onChange(index, "succao_id", e.target.value)}
               className="mt-1"
@@ -144,15 +147,15 @@ export const SuctionSystemItemForm = ({
               className="flex gap-4 mt-2"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="aberto" id={`suc-aberto-${index}`} />
-                <Label htmlFor={`suc-aberto-${index}`}>Aberto</Label>
+                <RadioGroupItem value="aberto" id={`${systemIdPrefix}-aberto`} />
+                <Label htmlFor={`${systemIdPrefix}-aberto`}>Aberto</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem
                   value="pressurizado"
-                  id={`suc-pressurizado-${index}`}
+                  id={`${systemIdPrefix}-pressurizado`}
                 />
-                <Label htmlFor={`suc-pressurizado-${index}`}>
+                <Label htmlFor={`${systemIdPrefix}-pressurizado`}>
                   Pressurizado
                 </Label>
               </div>
@@ -161,11 +164,11 @@ export const SuctionSystemItemForm = ({
 
           {system.tipo_reservatorio === "pressurizado" && (
             <div>
-              <Label htmlFor={`suc-pressao-${index}`}>
+              <Label htmlFor={`${systemIdPrefix}-pressao`}>
                 Pressão Manométrica (bar)
               </Label>
               <Input
-                id={`suc-pressao-${index}`}
+                id={`${systemIdPrefix}-pressao`}
                 type="number"
                 step="0.1"
                 min="0"
@@ -179,11 +182,11 @@ export const SuctionSystemItemForm = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor={`suc-H-nominal-${index}`}>
+              <Label htmlFor={`${systemIdPrefix}-H-nominal`}>
                 Desnível Geométrico Nominal (m)
               </Label>
               <Input
-                id={`suc-H-nominal-${index}`}
+                id={`${systemIdPrefix}-H-nominal`}
                 type="number"
                 step="0.1"
                 value={displayValue(system.nivel_nominal)}
@@ -193,9 +196,9 @@ export const SuctionSystemItemForm = ({
               />
             </div>
             <div>
-              <Label htmlFor={`suc-H-min-${index}`}>Desnível Geométrico Mínimo (m)</Label>
+              <Label htmlFor={`${systemIdPrefix}-H-min`}>Desnível Geométrico Mínimo (m)</Label>
               <Input
-                id={`suc-H-min-${index}`}
+                id={`${systemIdPrefix}-H-min`}
                 type="number"
                 step="0.1"
                 value={displayValue(system.nivel_min)}
@@ -205,9 +208,9 @@ export const SuctionSystemItemForm = ({
               />
             </div>
             <div>
-              <Label htmlFor={`suc-H-max-${index}`}>Desnível Geométrico Máximo (m)</Label>
+              <Label htmlFor={`${systemIdPrefix}-H-max`}>Desnível Geométrico Máximo (m)</Label>
               <Input
-                id={`suc-H-max-${index}`}
+                id={`${systemIdPrefix}-H-max`}
                 type="number"
                 step="0.1"
                 value={displayValue(system.nivel_max)}
@@ -243,6 +246,7 @@ export const SuctionSystemItemForm = ({
                 onChange={handleSectionChange}
                 onRemove={removeSection}
                 canRemove={system.trechos.length > 1}
+                parentId={systemIdPrefix} // Passando o ID único do pai
               />
             ))}
           </div>
