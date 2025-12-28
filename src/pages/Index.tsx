@@ -612,7 +612,8 @@ const Index = () => {
           <CardContent className="space-y-4">
             {formData.suc.map((system, index) => (
               <SuctionSystemItemForm
-                key={index}
+                // Usando succao_id como chave estável
+                key={system.succao_id} 
                 system={system as SuctionSystem}
                 index={index}
                 materials={materials}
@@ -638,7 +639,8 @@ const Index = () => {
           <CardContent className="space-y-4">
             {formData.recalque.map((system, index) => (
               <DischargeSystemForm
-                key={index}
+                // Usando destino_id como chave estável
+                key={system.destino_id}
                 system={system}
                 index={index}
                 materials={materials}

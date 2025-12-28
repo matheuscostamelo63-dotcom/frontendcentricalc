@@ -189,8 +189,8 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {result.resultados_destinos.map((dest, index) => (
-                    <TableRow key={index}>
+                  {result.resultados_destinos.map((dest) => (
+                    <TableRow key={dest.destino_id}>
                       <TableCell className="font-medium">
                         {dest.destino_id}
                       </TableCell>
