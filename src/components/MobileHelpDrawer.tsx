@@ -13,7 +13,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useMounted } from "@/hooks/use-mounted";
 
 interface MobileHelpDrawerProps {
@@ -26,28 +26,41 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
   const mounted = useMounted();
   const [isOpen, setIsOpen] = useState(false);
   const isMountedRef = useRef(true);
+  const rafIdRef = useRef<number | null>(null);
 
-  // Track mounted state with ref (não causa re-render)
   useEffect(() => {
     isMountedRef.current = true;
+    
     return () => {
       isMountedRef.current = false;
+      // Cancela qualquer requestAnimationFrame pendente
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
   }, []);
 
-  // Reset ao mudar de modo mobile/desktop
-  useEffect(() => {
-    if (isMountedRef.current) {
-      setIsOpen(false);
+  // Handler seguro com requestAnimationFrame
+  const handleOpenChange = useCallback((open: boolean) => {
+    // Cancela operação anterior se existir
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
     }
-  }, [isMobile]);
+    
+    // Usa RAF para sincronizar com o ciclo de renderização do browser
+    rafIdRef.current = requestAnimationFrame(() => {
+      if (isMountedRef.current) {
+        setIsOpen(open);
+      }
+    });
+  }, []);
 
-  // Handler seguro para mudança de estado
-  const handleOpenChange = (open: boolean) => {
-    if (isMountedRef.current) {
-      setIsOpen(open);
+  // Fecha ao mudar modo mobile/desktop
+  useEffect(() => {
+    if (isMountedRef.current && isOpen) {
+      handleOpenChange(false);
     }
-  };
+  }, [isMobile, handleOpenChange]);
 
   if (!mounted) {
     return null;
