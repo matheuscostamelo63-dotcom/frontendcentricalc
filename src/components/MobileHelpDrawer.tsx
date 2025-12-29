@@ -15,6 +15,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import React, { useState, useEffect } from "react";
 import { useMounted } from "@/hooks/use-mounted";
+import { usePortalCleanup } from "@/components/PortalCleanupProvider";
 
 interface MobileHelpDrawerProps {
   title: string;
@@ -25,6 +26,7 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
   const isMobile = useIsMobile();
   const mounted = useMounted();
   const [isOpen, setIsOpen] = useState(false);
+  const { register } = usePortalCleanup();
 
   // 1. Cleanup: Garante que o portal feche ao desmontar o componente.
   useEffect(() => {
@@ -40,6 +42,16 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
   useEffect(() => {
     setIsOpen(false);
   }, [isMobile]);
+
+  // 3. Cleanup global: Fecha o portal antes da navegação
+  useEffect(() => {
+    // registra o fechamento no cleanup global
+    const unregister = register(() => {
+      setIsOpen(false);
+    });
+
+    return unregister;
+  }, [register]);
 
 
   if (!mounted) {
