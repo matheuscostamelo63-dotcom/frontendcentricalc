@@ -13,9 +13,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useMounted } from "@/hooks/use-mounted";
-import { usePortalCleanup } from "@/components/PortalCleanupProvider";
 
 interface MobileHelpDrawerProps {
   title: string;
@@ -26,33 +25,29 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
   const isMobile = useIsMobile();
   const mounted = useMounted();
   const [isOpen, setIsOpen] = useState(false);
-  const { register } = usePortalCleanup();
+  const isMountedRef = useRef(true);
 
-  // 1. Cleanup: Garante que o portal feche ao desmontar o componente.
+  // Track mounted state with ref (não causa re-render)
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
-      // Se o componente for desmontado (ex: mudança de rota ou remoção de item da lista),
-      // forçamos o fechamento do portal.
-      setIsOpen(false);
+      isMountedRef.current = false;
     };
   }, []);
 
-  // 2. Reset ao mudar de modo: Se o modo mobile/desktop mudar, forçamos o fechamento
-  // para evitar que o portal do modo anterior persista.
+  // Reset ao mudar de modo mobile/desktop
   useEffect(() => {
-    setIsOpen(false);
+    if (isMountedRef.current) {
+      setIsOpen(false);
+    }
   }, [isMobile]);
 
-  // 3. Cleanup global: Fecha o portal antes da navegação
-  useEffect(() => {
-    // registra o fechamento no cleanup global
-    const unregister = register(() => {
-      setIsOpen(false);
-    });
-
-    return unregister;
-  }, [register]);
-
+  // Handler seguro para mudança de estado
+  const handleOpenChange = (open: boolean) => {
+    if (isMountedRef.current) {
+      setIsOpen(open);
+    }
+  };
 
   if (!mounted) {
     return null;
@@ -60,7 +55,7 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
 
   if (isMobile) {
     return (
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={isOpen} onOpenChange={handleOpenChange}>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-muted-foreground cursor-pointer">
             <HelpCircle className="h-4 w-4" />
@@ -78,9 +73,8 @@ export const MobileHelpDrawer = ({ title, children }: MobileHelpDrawerProps) => 
     );
   }
 
-  // Desktop: Use standard Tooltip
   return (
-    <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+    <Tooltip open={isOpen} onOpenChange={handleOpenChange}>
       <TooltipTrigger asChild>
         <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
       </TooltipTrigger>
