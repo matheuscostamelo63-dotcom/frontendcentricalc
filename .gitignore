@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# temp generation artifacts
+.temp_ag_kit/
