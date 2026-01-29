@@ -25,21 +25,23 @@ import { SuctionSystemItemForm } from "@/components/forms/SuctionSystemItemForm"
 import { DischargeSystemForm } from "@/components/forms/DischargeSystemForm";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { MobileHelpDrawer } from "@/components/MobileHelpDrawer";
-import { 
-  SeletorTipoSistema, 
-  AbasMetodoVazao, 
-  FormularioManual, 
-  FormularioPesos, 
-  ResultadoVazao 
+import { CalculoReservatorio } from "@/components/reservatorio/CalculoReservatorio";
+import { CalculoResponse } from "@/types/reservatorio";
+import {
+  SeletorTipoSistema,
+  AbasMetodoVazao,
+  FormularioManual,
+  FormularioPesos,
+  ResultadoVazao
 } from "@/components/vazao";
-import { 
-  validarTipoVazao, 
-  definirVazaoManual, 
-  calcularVazaoPesos, 
-  TipoSistema, 
-  MetodoVazao, 
-  VazaoResult, 
-  PecaInput 
+import {
+  validarTipoVazao,
+  definirVazaoManual,
+  calcularVazaoPesos,
+  TipoSistema,
+  MetodoVazao,
+  VazaoResult,
+  PecaInput
 } from "@/services/vazaoService";
 import { handleApiError } from "@/utils/errorHandler";
 import { useSistema } from "@/context/SistemaContext";
@@ -53,7 +55,7 @@ export interface FormComponentItem {
 }
 
 // Structure for Pipe Section in Form State
-export interface FormPipeSection extends Omit<PipeSection, 'L' | 'D' | 'conexoes' | 'k_manual' | 'componentes'> {
+export interface FormPipeSection extends Omit<PipeSection, 'L' | 'D' | 'k_manual' | 'componentes'> {
   L: number | string;
   D: number | string;
   k_manual?: number | string;
@@ -62,7 +64,7 @@ export interface FormPipeSection extends Omit<PipeSection, 'L' | 'D' | 'conexoes
 }
 
 // Structure for Suction System in Form State
-interface FormSuctionSystem extends Omit<SuctionSystem, 'trechos'> {
+interface FormSuctionSystem extends Omit<SuctionSystem, 'trechos' | 'nivel_nominal' | 'nivel_min' | 'nivel_max' | 'pressao_manometrica'> {
   nivel_nominal: number | string;
   nivel_min: number | string;
   nivel_max: number | string;
@@ -71,7 +73,7 @@ interface FormSuctionSystem extends Omit<SuctionSystem, 'trechos'> {
 }
 
 // Structure for Discharge System in Form State
-interface FormDischargeSystem extends Omit<DischargeSystem, 'trechos'> {
+interface FormDischargeSystem extends Omit<DischargeSystem, 'trechos' | 'nivel_nominal' | 'nivel_min' | 'nivel_max' | 'pressao_manometrica'> {
   nivel_nominal: number | string;
   nivel_min: number | string;
   nivel_max: number | string;
@@ -97,12 +99,13 @@ interface FormDataInput extends Omit<CalculationInput, "Q" | "NPSHr" | "fluido" 
 
 const Index = () => {
   const { tipoSistema, setTipoSistema } = useSistema(); // Use global context
-  
+
   const [materials, setMaterials] = useState<Material[]>([]);
   const [components, setComponents] = useState<Componente[]>([]);
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [reservoirResult, setReservoirResult] = useState<CalculoResponse | null>(null);
 
   // --- Vazão State (Now local to Index, except tipoSistema) ---
   const [metodosPermitidos, setMetodosPermitidos] = useState<MetodoVazao[]>([]);
@@ -118,6 +121,7 @@ const Index = () => {
     L: 0,
     D: 0,
     material: "",
+    conexoes: 0,
     componentes: [],
     lossMode: 'detailed',
   };
@@ -158,7 +162,7 @@ const Index = () => {
   });
 
   // Helper function to display value: show "" if value is 0 or null/undefined
-  const displayValue = (val: number | string | undefined) => 
+  const displayValue = (val: number | string | undefined) =>
     val === 0 || val === undefined || val === "" ? "" : val;
 
   // Helper function to handle number input changes for the main form
@@ -202,10 +206,10 @@ const Index = () => {
         api.getMateriais(),
         api.getComponentes(),
       ]);
-      
+
       setMaterials(materialData);
       setComponents(componentData);
-      
+
       // Set default material for existing sections
       if (materialData.length > 0) {
         const defaultMaterialId = materialData[0].id;
@@ -242,7 +246,7 @@ const Index = () => {
     setVazaoResultado(null);
     setHighlightField(null);
     setFormData(prev => ({ ...prev, Q: "" })); // Clear Q when changing system type
-    
+
     const validacao = await validarTipoVazao(tipo);
     setMetodosPermitidos(validacao.metodos_permitidos);
     setMetodoAtivo(validacao.recomendado);
@@ -255,7 +259,7 @@ const Index = () => {
     const finalValue = isNaN(parsedValue) ? "" : parsedValue;
 
     setFormData((prev) => ({ ...prev, Q: finalValue }));
-    
+
     // Se o usuário começar a editar a vazão, limpamos o card de resultado
     if (vazaoResultado) {
       setVazaoResultado(null);
@@ -266,11 +270,11 @@ const Index = () => {
     if (!tipoSistema) return;
     setCalculating(true);
     setHighlightField(null);
-    
+
     const response = await definirVazaoManual(tipoSistema, vazaoM3h);
-    
+
     setCalculating(false);
-    
+
     if (response.sucesso && response.dados) {
       setVazaoResultado(response.dados.vazao);
       // ATUALIZAÇÃO: Atualiza Q no formData imediatamente após o cálculo manual
@@ -288,11 +292,11 @@ const Index = () => {
     if (!tipoSistema) return;
     setCalculating(true);
     setHighlightField(null);
-    
+
     const response = await calcularVazaoPesos(tipoSistema, pecas);
-    
+
     setCalculating(false);
-    
+
     if (response.sucesso && response.dados) {
       setVazaoResultado(response.dados.vazao);
       // ATUALIZAÇÃO: Atualiza Q no formData imediatamente após o cálculo por pesos
@@ -342,6 +346,7 @@ const Index = () => {
           L: 0,
           D: 0,
           material: materials[0]?.id || "",
+          conexoes: 0,
           componentes: [],
           lossMode: 'detailed',
         },
@@ -363,12 +368,12 @@ const Index = () => {
   const updateSuctionSystem = (
     index: number,
     field: string,
-    value: any
+    value: string | number | FormPipeSection[]
   ) => {
     setFormData((prev) => ({
       ...prev,
       suc: prev.suc.map((system, i) =>
-        i === index 
+        i === index
           ? { ...system, [field]: value }
           : system
       ),
@@ -390,6 +395,7 @@ const Index = () => {
           L: 0,
           D: 0,
           material: materials[0]?.id || "",
+          conexoes: 0,
           componentes: [],
           lossMode: 'detailed',
         },
@@ -411,7 +417,7 @@ const Index = () => {
   const updateDischargeSystem = (
     index: number,
     field: string,
-    value: any
+    value: string | number | FormPipeSection[]
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -446,7 +452,7 @@ const Index = () => {
       if (componentIds.length > 0) {
         apiSection.componentes = componentIds;
       }
-    } 
+    }
     // If neither new method is used, conexoes remains 0 (Scenario 3 legacy is ignored in new UI)
 
     return apiSection;
@@ -464,7 +470,7 @@ const Index = () => {
       setCalculating(false);
       return;
     }
-    
+
     // Basic validation check for required fields (NPSHr)
     if (formData.NPSHr === "") {
       toast.error("NPSHr é um campo obrigatório.");
@@ -493,7 +499,7 @@ const Index = () => {
           nivel_max: Number(s.nivel_max) || 0,
           pressao_manometrica: Number(s.pressao_manometrica) || 0,
           trechos: s.trechos.map(mapPipeSectionToApi),
-        })) as SuctionSystem[], 
+        })) as SuctionSystem[],
         // Convert Discharge Systems
         recalque: formData.recalque.map((r) => ({
           ...r,
@@ -510,7 +516,7 @@ const Index = () => {
 
       // --- START: Saving Project Data ---
       const savedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
-      
+
       // Create a unique ID and timestamp
       const projectId = Date.now().toString();
       const creationDate = new Date().toISOString();
@@ -523,11 +529,13 @@ const Index = () => {
         Q: Q_m3h, // Save the calculated Q
         status: calculationResult.status,
         // Save the full input data (before unit conversion)
-        inputData: formData, 
+        inputData: formData,
         // Save the full result data
         resultData: calculationResult,
+        // Save reservoir data if available
+        reservoirData: reservoirResult,
       };
-      
+
       savedProjects.unshift(projectData); // Add to beginning of array
       localStorage.setItem("savedProjects", JSON.stringify(savedProjects));
       // --- END: Saving Project Data ---
@@ -538,8 +546,9 @@ const Index = () => {
       } else if (calculationResult.status === "warning") {
         toast.warning("Cálculo concluído com avisos e projeto salvo.");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao realizar cálculo.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Erro ao realizar cálculo.";
+      toast.error(message);
     } finally {
       setCalculating(false);
     }
@@ -570,6 +579,7 @@ const Index = () => {
               L: 0,
               D: 0,
               material: defaultMaterialId,
+              conexoes: 0,
               componentes: [],
               lossMode: 'detailed',
             },
@@ -588,6 +598,7 @@ const Index = () => {
               L: 0,
               D: 0,
               material: defaultMaterialId,
+              conexoes: 0,
               componentes: [],
               lossMode: 'detailed',
             },
@@ -602,6 +613,7 @@ const Index = () => {
     setMetodoAtivo(null);
     setMetodoRecomendado(null);
     setHighlightField(null);
+    setReservoirResult(null);
   };
 
   // Custom display for atmospheric pressure (Pa to kPa conversion)
@@ -638,7 +650,7 @@ const Index = () => {
 
   // Check if Q is a valid number > 0
   const isQDefined = Number(formData.Q) > 0;
-  
+
   // Form is ready if Q is defined AND NPSHr is provided
   const isFormReadyToCalculate = isQDefined && formData.NPSHr !== "";
 
@@ -713,7 +725,7 @@ const Index = () => {
                       metodoAtivo={metodoAtivo || 'manual'}
                       onChangeMetodo={setMetodoAtivo}
                     />
-                    
+
                     <div className="mt-4">
                       {metodoAtivo === 'manual' && (
                         <FormularioManual
@@ -725,7 +737,7 @@ const Index = () => {
                           onChangeQ={handleManualQChange} // Passando o novo handler
                         />
                       )}
-                      
+
                       {metodoAtivo === 'metodo_pesos' && (
                         <FormularioPesos
                           tipoSistema={tipoSistema}
@@ -747,7 +759,7 @@ const Index = () => {
             )}
           </CardContent>
         </Card>
-        
+
         {/* NPSHr Input (Visible if Q is defined in formData, which happens immediately after calculation/definition) */}
         {isQDefined && (
           <Card>
@@ -761,7 +773,7 @@ const Index = () => {
                   <Input
                     id="vazao-confirmada"
                     // Use formData.Q, which is updated by the vazao handlers
-                    value={Number(formData.Q).toFixed(2)} 
+                    value={Number(formData.Q).toFixed(2)}
                     disabled
                     className="mt-1 bg-primary/10 font-semibold"
                   />
@@ -866,11 +878,18 @@ const Index = () => {
           </Card>
         </Collapsible>
 
+        {/* Reservoir Calculation (Section 4) - Conditional for Predial */}
+        {tipoSistema === 'predial' && (
+          <div id="reservatorio-section" className="scroll-mt-20">
+            <CalculoReservatorio onResultado={(res) => setReservoirResult(res)} />
+          </div>
+        )}
+
         {/* Suction Systems (Multiple) */}
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>4. Sistemas de Sucção</CardTitle>
+              <CardTitle>5. Sistemas de Sucção</CardTitle>
               <Button onClick={addSuctionSystem} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Adicionar Sucção
@@ -881,8 +900,8 @@ const Index = () => {
             {formData.suc.map((system, index) => (
               <SuctionSystemItemForm
                 // Usando o índice como chave para garantir estabilidade durante a edição do nome
-                key={index} 
-                system={system as SuctionSystem}
+                key={index}
+                system={system as unknown as SuctionSystem}
                 index={index}
                 materials={materials}
                 components={components} // Passando componentes
@@ -898,7 +917,7 @@ const Index = () => {
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>5. Sistemas de Recalque</CardTitle>
+              <CardTitle>6. Sistemas de Recalque</CardTitle>
               <Button onClick={addDischargeSystem} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Adicionar Destino
@@ -910,7 +929,7 @@ const Index = () => {
               <DischargeSystemForm
                 // Usando o índice como chave para garantir estabilidade durante a edição do nome
                 key={index}
-                system={system}
+                system={system as unknown as DischargeSystem}
                 index={index}
                 materials={materials}
                 components={components} // Passando componentes

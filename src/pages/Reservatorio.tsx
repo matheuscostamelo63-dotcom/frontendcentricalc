@@ -4,8 +4,18 @@ import { ReservatorioContainer } from "@/components/reservatorio/ReservatorioCon
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 const ReservatorioPage = () => {
   const { tipoSistema } = useSistema();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (tipoSistema === 'predial') {
+      navigate('/');
+    }
+  }, [tipoSistema, navigate]);
 
   return (
     <div className="py-8">

@@ -1,4 +1,4 @@
-import { Calculator, FolderOpen, FileText, Menu, X, Home } from "lucide-react";
+import { Calculator, FolderOpen, FileText, Menu, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -21,9 +21,8 @@ export const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-card border-r border-border transition-transform duration-300 z-40 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 w-64 flex flex-col`}
+        className={`fixed left-0 top-0 h-screen bg-card border-r border-border transition-transform duration-300 z-40 ${isOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 w-64 flex flex-col`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -49,16 +48,7 @@ export const Sidebar = () => {
               <Calculator className="h-5 w-5" />
               <span className="font-medium">Novo Dimensionamento</span>
             </NavLink>
-            
-            <NavLink
-              to="/reservatorio"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition-colors"
-              activeClassName="bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={() => setIsOpen(false)}
-            >
-              <Home className="h-5 w-5" />
-              <span className="font-medium">Cálculo Reservatório</span>
-            </NavLink>
+
 
             <NavLink
               to="/meus-projetos"
