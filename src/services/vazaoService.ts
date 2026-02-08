@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { Alerta } from "@/types/alertas";
 
 // Reusing API_BASE_URL from lib/api.ts context, but defining it locally for clarity in the service layer
 // Definindo a URL base sem o prefixo /api, para ser consistente com src/lib/api.ts
@@ -32,6 +33,7 @@ export interface VazaoResult {
     pecas?: PecaDetalhe[];
     informado_pelo_usuario?: boolean;
   };
+  alertas?: Alerta[];
 }
 
 export interface VazaoValidationResponse {
@@ -54,7 +56,7 @@ export interface ApiResponse<T> {
 
 async function fetchApi<T>(endpoint: string, body: object): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}/api${endpoint}`;
-  
+
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -73,10 +75,10 @@ async function fetchApi<T>(endpoint: string, body: object): Promise<ApiResponse<
       return { sucesso: true, dados: data.dados as T, erro: null };
     } else {
       // Handle non-200 responses
-      const error: ApiError = data.erro || { 
-        codigo: `HTTP_ERROR_${response.status}`, 
-        mensagem: data.message || `Erro de rede ou servidor (${response.status}) ao acessar ${endpoint}`, 
-        detalhes: data 
+      const error: ApiError = data.erro || {
+        codigo: `HTTP_ERROR_${response.status}`,
+        mensagem: data.message || `Erro de rede ou servidor (${response.status}) ao acessar ${endpoint}`,
+        detalhes: data
       };
       return { sucesso: false, dados: null, erro: error };
     }
@@ -93,11 +95,11 @@ async function fetchApi<T>(endpoint: string, body: object): Promise<ApiResponse<
 
 export async function validarTipoVazao(tipoSistema: TipoSistema): Promise<VazaoValidationResponse> {
   const response = await fetchApi<{ tipo_sistema: TipoSistema, metodos_permitidos: MetodoVazao[], recomendado: MetodoVazao }>('/validar-tipo-vazao', { tipo_sistema: tipoSistema });
-  
+
   if (response.sucesso && response.dados) {
     return response.dados;
   }
-  
+
   // Fallback if API fails or returns error structure
   // Usamos o erro retornado pela API ou o fallback genérico
   toast.error(response.erro?.mensagem || "Falha ao validar tipo de sistema. Usando configurações padrão.");
@@ -109,21 +111,21 @@ export async function validarTipoVazao(tipoSistema: TipoSistema): Promise<VazaoV
 }
 
 export async function calcularVazaoPesos(
-  tipoSistema: TipoSistema, 
+  tipoSistema: TipoSistema,
   pecas: PecaInput[]
 ): Promise<ApiResponse<{ vazao: VazaoResult }>> {
-  return fetchApi<{ vazao: VazaoResult }>('/calcular-vazao-pesos', { 
+  return fetchApi<{ vazao: VazaoResult }>('/calcular-vazao-pesos', {
     tipo_sistema: tipoSistema,
-    pecas: pecas 
+    pecas: pecas
   });
 }
 
 export async function definirVazaoManual(
-  tipoSistema: TipoSistema, 
+  tipoSistema: TipoSistema,
   vazaoM3h: number
 ): Promise<ApiResponse<{ vazao: VazaoResult }>> {
-  return fetchApi<{ vazao: VazaoResult }>('/definir-vazao-manual', { 
+  return fetchApi<{ vazao: VazaoResult }>('/definir-vazao-manual', {
     tipo_sistema: tipoSistema,
-    vazao_m3h: vazaoM3h 
+    vazao_m3h: vazaoM3h
   });
 }

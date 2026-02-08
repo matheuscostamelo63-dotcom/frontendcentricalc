@@ -6,6 +6,7 @@ import Sobre from "@/pages/Sobre";
 import ProjectDetails from "@/pages/ProjectDetails";
 import ReservatorioPage from "@/pages/Reservatorio";
 import NotFound from "@/pages/NotFound";
+import { ExemploIntegracao } from "@/components/alertas";
 
 // Função para remover portais órfãos do Radix
 const cleanupRadixPortals = () => {
@@ -16,7 +17,7 @@ const cleanupRadixPortals = () => {
     '[vaul-drawer-wrapper]',
     '[data-sonner-toast]',
   ];
-  
+
   portalSelectors.forEach(selector => {
     document.querySelectorAll(selector).forEach(el => {
       try {
@@ -54,6 +55,7 @@ export const SafeRoutes = () => {
       <Route path="/meus-projetos" element={<MeusProjetos />} />
       <Route path="/meus-projetos/:id" element={<ProjectDetails />} />
       <Route path="/sobre" element={<Sobre />} />
+      <Route path="/alertas-exemplo" element={<ExemploIntegracao />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

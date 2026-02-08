@@ -1,4 +1,5 @@
 import { TipoSistema } from "@/services/vazaoService";
+import { Alerta } from "./alertas";
 
 export interface TipoEdificacao {
   chave: string;
@@ -35,6 +36,7 @@ export interface CalculoResponse {
   percentual_superior: number;
   percentual_inferior: number;
   observacoes: string[];
+  alertas?: Alerta[];
 }
 
 export interface ValidacaoRequest {
