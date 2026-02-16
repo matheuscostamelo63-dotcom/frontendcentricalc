@@ -5,7 +5,12 @@ import { Alerta } from "@/types/alertas";
 // Definindo a URL base sem o prefixo /api, para ser consistente com src/lib/api.ts
 const API_BASE_URL = "https://dimensionamento-git-main-matheus-melos-projects-cbf6112f.vercel.app";
 
-export type TipoSistema = "predial" | "industrial";
+export type TipoSistema =
+  | "agua_fria"
+  | "esgoto"
+  | "pluvial"
+  | "incendio"
+  | "efluentes";
 export type MetodoVazao = "manual" | "metodo_pesos";
 
 export interface PecaInput {
@@ -103,10 +108,13 @@ export async function validarTipoVazao(tipoSistema: TipoSistema): Promise<VazaoV
   // Fallback if API fails or returns error structure
   // Usamos o erro retornado pela API ou o fallback genérico
   toast.error(response.erro?.mensagem || "Falha ao validar tipo de sistema. Usando configurações padrão.");
+
+  const suportaPesos = tipoSistema === 'agua_fria' || tipoSistema === 'esgoto';
+
   return {
     tipo_sistema: tipoSistema,
-    metodos_permitidos: tipoSistema === 'predial' ? ['manual', 'metodo_pesos'] : ['manual'],
-    recomendado: tipoSistema === 'predial' ? 'metodo_pesos' : 'manual',
+    metodos_permitidos: suportaPesos ? ['manual', 'metodo_pesos'] : ['manual'],
+    recomendado: suportaPesos ? 'metodo_pesos' : 'manual',
   };
 }
 

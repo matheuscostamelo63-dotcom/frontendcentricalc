@@ -59,7 +59,7 @@ export const CalculoReservatorio = ({ onResultado }: CalculoReservatorioProps) =
 
     // Prepare data for validation and API call, ensuring numbers are numbers
     const dataToValidate: CalculoRequest = {
-      tipo_sistema: 'predial',
+      tipo_sistema: 'agua_fria',
       tipo_edificacao: String(formData.tipo_edificacao),
       populacao: Number(formData.populacao),
       autonomia_dias: Number(formData.autonomia_dias),
@@ -88,8 +88,8 @@ export const CalculoReservatorio = ({ onResultado }: CalculoReservatorioProps) =
   const mostrarConsumManual = formData.tipo_edificacao === 'manual';
   const isReady = !isLoadingTipos && tiposEdificacao.length > 0;
 
-  // Garante que isso SÓ roda para predial (moved after hooks)
-  if (tipoSistema !== 'predial') {
+  // Garante que isso SÓ roda para agua_fria (NBR 5626) (moved after hooks)
+  if (tipoSistema !== 'agua_fria') {
     return null;
   }
 

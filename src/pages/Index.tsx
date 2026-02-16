@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -98,7 +99,7 @@ interface FormDataInput extends Omit<CalculationInput, "Q" | "NPSHr" | "fluido" 
 // --- Component ---
 
 const Index = () => {
-  const { tipoSistema, setTipoSistema } = useSistema(); // Use global context
+  const { tipoSistema, setTipoSistema, normaSelecionada } = useSistema(); // Use global context
 
   const [materials, setMaterials] = useState<Material[]>([]);
   const [components, setComponents] = useState<Componente[]>([]);
@@ -242,12 +243,15 @@ const Index = () => {
 
   // Use setTipoSistema from context
   const handleTipoSistemaChange = useCallback(async (tipo: TipoSistema) => {
+    console.log('[DEBUG] Setting tipoSistema to:', tipo);
     setTipoSistema(tipo);
     setVazaoResultado(null);
     setHighlightField(null);
     setFormData(prev => ({ ...prev, Q: "" })); // Clear Q when changing system type
 
+    console.log('[DEBUG] Validating tipo with backend...');
     const validacao = await validarTipoVazao(tipo);
+    console.log('[DEBUG] Backend validation response:', validacao);
     setMetodosPermitidos(validacao.metodos_permitidos);
     setMetodoAtivo(validacao.recomendado);
     setMetodoRecomendado(validacao.recomendado);
@@ -481,7 +485,8 @@ const Index = () => {
     try {
       // Convert units and map structure before sending
       const dataToSend: CalculationInput = {
-        ...formData,
+        name: formData.name,
+        usuario: formData.usuario,
         Q: conversions.m3hToM3s(Q_m3h),
         NPSHr: Number(formData.NPSHr) || 0,
         fluido: {
@@ -878,8 +883,9 @@ const Index = () => {
           </Card>
         </Collapsible>
 
-        {/* Reservoir Calculation (Section 4) - Conditional for Predial */}
-        {tipoSistema === 'predial' && (
+        {/* Reservoir Calculation (Section 4) - Conditional for Agua Fria (NBR 5626) */}
+        {console.log('[DEBUG] tipoSistema value:', tipoSistema, 'Should show reservoir?', tipoSistema === 'agua_fria')}
+        {tipoSistema === 'agua_fria' && (
           <div id="reservatorio-section" className="scroll-mt-20">
             <CalculoReservatorio onResultado={(res) => setReservoirResult(res)} />
           </div>
@@ -981,6 +987,39 @@ const Index = () => {
               ) : result ? (
                 <ResultsDisplay result={result} />
               ) : null}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Compliance Validation Section - Shown when system type is selected */}
+      {tipoSistema && result && (
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">✅</span>
+                  Validação de Conformidade
+                </CardTitle>
+                <Badge variant="outline" className="text-sm">
+                  {normaSelecionada}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Alertas e recomendações baseados na norma {normaSelecionada}
+              </p>
+            </CardHeader>
+            <CardContent>
+              {/* This will be populated with actual alerts from the calculation */}
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-sm">
+                  A validação de conformidade será exibida aqui após a integração com o backend.
+                </p>
+                <p className="text-xs mt-2">
+                  Sistema selecionado: <strong>{tipoSistema}</strong> | Norma: <strong>{normaSelecionada}</strong>
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
