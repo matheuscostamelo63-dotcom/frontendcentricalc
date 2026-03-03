@@ -8,6 +8,7 @@ import {
   ValidacaoResponse,
 } from "@/types/reservatorio";
 import { ApiResponse, ApiError } from "./vazaoService"; // Reusing ApiResponse/ApiError structure
+import { getAuthHeader } from "@/lib/api";
 
 const API_BASE_URL = "https://dimensionamento-git-main-matheus-melos-projects-cbf6112f.vercel.app";
 
@@ -26,15 +27,18 @@ export class ReservatorioError extends Error {
 
 async function fetchReservatorioApi<T>(endpoint: string, body?: object): Promise<T> {
   const url = `${API_BASE_URL}/api${endpoint}`;
-  
+
   try {
     const response = await fetch(url, {
       method: body ? 'POST' : 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    let data: ApiResponse<T> = { sucesso: false, dados: null, erro: null };
+    let data: any = { sucesso: false, dados: null, erro: null };
     try {
       data = await response.json();
     } catch (e) {
@@ -45,18 +49,18 @@ async function fetchReservatorioApi<T>(endpoint: string, body?: object): Promise
       return data.dados;
     } else {
       // Handle non-200 responses or API success: false
-      const error: ApiError = data.erro || { 
-        codigo: `HTTP_ERROR_${response.status}`, 
-        mensagem: data.message || `Erro de rede ou servidor (${response.status}) ao acessar ${endpoint}`, 
-        detalhes: data 
+      const error: ApiError = data.erro || {
+        codigo: `HTTP_ERROR_${response.status}`,
+        mensagem: (data as any).message || `Erro de rede ou servidor (${response.status}) ao acessar ${endpoint}`,
+        detalhes: data
       };
-      
+
       // Throw custom error for structured handling
       throw new ReservatorioError(error.mensagem, error.codigo, error.detalhes);
     }
   } catch (networkError: any) {
     if (networkError instanceof ReservatorioError) {
-        throw networkError;
+      throw networkError;
     }
     // Handle network failures (e.g., CORS, DNS, offline)
     throw new ReservatorioError(

@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SafeRoutes } from "@/components/SafeRoutes";
 import { PortalErrorBoundary } from "@/components/PortalErrorBoundary";
 import { SistemaProvider } from "@/context/SistemaContext";
+import { AuthSync } from "@/components/AuthSync";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => (
       <BrowserRouter>
         <PortalErrorBoundary>
           <SistemaProvider>
+            <AuthSync />
             <TooltipProvider delayDuration={300}>
               <Sonner />
               <div className="flex min-h-screen w-full bg-background">

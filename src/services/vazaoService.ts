@@ -4,6 +4,7 @@ import { Alerta } from "@/types/alertas";
 // Reusing API_BASE_URL from lib/api.ts context, but defining it locally for clarity in the service layer
 // Definindo a URL base sem o prefixo /api, para ser consistente com src/lib/api.ts
 const API_BASE_URL = "https://dimensionamento-git-main-matheus-melos-projects-cbf6112f.vercel.app";
+import { getAuthHeader } from "@/lib/api";
 
 export type TipoSistema =
   | "agua_fria"
@@ -65,7 +66,10 @@ async function fetchApi<T>(endpoint: string, body: object): Promise<ApiResponse<
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
       body: JSON.stringify(body)
     });
 

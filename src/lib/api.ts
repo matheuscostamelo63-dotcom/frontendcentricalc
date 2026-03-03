@@ -86,6 +86,26 @@ export interface CalculationResult {
   pdf_url?: string;
 }
 
+export const getAuthHeader = () => {
+  try {
+    const supabaseProjectRef = "mlabsszxdvhdiwxzdqms";
+    const storageKey = `sb-${supabaseProjectRef}-auth-token`;
+    const sessionStr = localStorage.getItem(storageKey);
+
+    console.log(`[DEBUG] Buscando token em ${storageKey}:`, sessionStr ? "Encontrado" : "Não encontrado");
+
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      if (session && session.access_token) {
+        return { 'Authorization': `Bearer ${session.access_token}` };
+      }
+    }
+  } catch (e) {
+    console.error("Error getting auth token", e);
+  }
+  return {};
+};
+
 export const api = {
   async getMateriais(): Promise<Material[]> {
     const response = await fetch(`${API_BASE_URL}/api/materiais`);
@@ -110,6 +130,7 @@ export const api = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...getAuthHeader(),
       },
       body: JSON.stringify(data),
     });
