@@ -22,10 +22,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Erro ao obter sessão:", error);
+        }
+        setSession(data?.session || null);
+      })
+      .catch((error) => {
+        console.error("Erro inesperado na sessão:", error);
+        setSession(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

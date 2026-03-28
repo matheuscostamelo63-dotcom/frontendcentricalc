@@ -1,11 +1,13 @@
-import { Calculator, FolderOpen, FileText, Menu, X } from "lucide-react";
+import { Calculator, FolderOpen, FileText, Menu, X, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // Start closed on mobile
+  const { user, signOut } = useAuth();
 
   return (
     <>
@@ -73,6 +75,22 @@ export const Sidebar = () => {
 
           {/* Footer */}
           <div className="p-4 border-t border-border space-y-3">
+            {user && (
+              <div className="flex flex-col gap-2 pb-2 border-b border-border mb-2">
+                <p className="text-xs text-muted-foreground truncate px-2 font-medium" title={user.email}>
+                  {user.email}
+                </p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50" 
+                  onClick={async () => await signOut()}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair do Sistema</span>
+                </Button>
+              </div>
+            )}
             <ThemeToggle />
             <p className="text-xs text-muted-foreground text-center">
               Versão 1.0.0
