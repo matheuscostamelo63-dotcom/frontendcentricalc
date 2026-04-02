@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client';
+
 const API_BASE_URL = "https://dimensionamento-git-main-matheus-melos-projects-cbf6112f.vercel.app";
 
 export interface Material {
@@ -86,19 +88,11 @@ export interface CalculationResult {
   pdf_url?: string;
 }
 
-export const getAuthHeader = () => {
+export const getAuthHeader = async (): Promise<Record<string, string>> => {
   try {
-    const supabaseProjectRef = "mlabsszxdvhdiwxzdqms";
-    const storageKey = `sb-${supabaseProjectRef}-auth-token`;
-    const sessionStr = localStorage.getItem(storageKey);
-
-    console.log(`[DEBUG] Buscando token em ${storageKey}:`, sessionStr ? "Encontrado" : "Não encontrado");
-
-    if (sessionStr) {
-      const session = JSON.parse(sessionStr);
-      if (session && session.access_token) {
-        return { 'Authorization': `Bearer ${session.access_token}` };
-      }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      return { 'Authorization': `Bearer ${session.access_token}` };
     }
   } catch (e) {
     console.error("Error getting auth token", e);
@@ -126,11 +120,12 @@ export const api = {
   },
 
   async calcular(data: CalculationInput): Promise<CalculationResult> {
+    const authHeader = await getAuthHeader();
     const response = await fetch(`${API_BASE_URL}/api/calcular`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...getAuthHeader(),
+        ...authHeader,
       },
       body: JSON.stringify(data),
     });

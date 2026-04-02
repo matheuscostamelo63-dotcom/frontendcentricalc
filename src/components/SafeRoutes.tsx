@@ -6,11 +6,15 @@ import Sobre from "@/pages/Sobre";
 import ProjectDetails from "@/pages/ProjectDetails";
 import ReservatorioPage from "@/pages/Reservatorio";
 import NotFound from "@/pages/NotFound";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import { ExemploIntegracao } from "@/components/alertas";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Função para remover portais órfãos do Radix
 const cleanupRadixPortals = () => {
-  // Remove todos os portais do Radix que possam estar órfãos
   const portalSelectors = [
     '[data-radix-portal]',
     '[data-radix-popper-content-wrapper]',
@@ -50,12 +54,19 @@ export const SafeRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/reservatorio" element={<ReservatorioPage />} />
-      <Route path="/meus-projetos" element={<MeusProjetos />} />
-      <Route path="/meus-projetos/:id" element={<ProjectDetails />} />
-      <Route path="/sobre" element={<Sobre />} />
-      <Route path="/alertas-exemplo" element={<ExemploIntegracao />} />
+      {/* Rotas Públicas de Autenticação (sem sidebar) */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Rotas Protegidas: redirecionam para /login se não autenticado */}
+      <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+      <Route path="/reservatorio" element={<ProtectedRoute><ReservatorioPage /></ProtectedRoute>} />
+      <Route path="/meus-projetos" element={<ProtectedRoute><MeusProjetos /></ProtectedRoute>} />
+      <Route path="/meus-projetos/:id" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
+      <Route path="/sobre" element={<ProtectedRoute><Sobre /></ProtectedRoute>} />
+      <Route path="/alertas-exemplo" element={<ProtectedRoute><ExemploIntegracao /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
