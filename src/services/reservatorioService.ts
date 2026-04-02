@@ -29,11 +29,12 @@ async function fetchReservatorioApi<T>(endpoint: string, body?: object): Promise
   const url = `${API_BASE_URL}/api${endpoint}`;
 
   try {
+    const authHeader = await getAuthHeader();
     const response = await fetch(url, {
       method: body ? 'POST' : 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeader(),
+        ...authHeader,
       },
       body: body ? JSON.stringify(body) : undefined,
     });

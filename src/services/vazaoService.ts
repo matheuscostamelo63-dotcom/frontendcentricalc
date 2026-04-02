@@ -64,11 +64,12 @@ async function fetchApi<T>(endpoint: string, body: object): Promise<ApiResponse<
   const url = `${API_BASE_URL}/api${endpoint}`;
 
   try {
+    const authHeader = await getAuthHeader();
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeader(),
+        ...authHeader,
       },
       body: JSON.stringify(body)
     });
