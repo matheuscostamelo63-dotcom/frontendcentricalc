@@ -90,12 +90,28 @@ export interface CalculationResult {
 
 export const getAuthHeader = async (): Promise<Record<string, string>> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    // First attempt: get current session
+    let { data: { session } } = await supabase.auth.getSession();
+
+    // If no session or token is missing, try to refresh
+    if (!session?.access_token) {
+      console.warn("[Auth] Sessão não encontrada, tentando refresh...");
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error("[Auth] Erro ao fazer refresh da sessão:", refreshError.message);
+      } else {
+        session = refreshData.session;
+      }
+    }
+
     if (session?.access_token) {
+      console.log("[Auth] Token encontrado, enviando requisição autenticada.");
       return { 'Authorization': `Bearer ${session.access_token}` };
+    } else {
+      console.error("[Auth] Nenhum token disponível após getSession e refreshSession. Usuário pode estar deslogado.");
     }
   } catch (e) {
-    console.error("Error getting auth token", e);
+    console.error("[Auth] Erro inesperado ao obter token:", e);
   }
   return {};
 };
