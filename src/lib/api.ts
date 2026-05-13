@@ -161,7 +161,11 @@ export function normalizeResult(raw: any): CalculationResult {
     NPSHa_global_min: resultado.npsh_disponivel_m,
     temperatura: resultado.temperatura,
     resultados_destinos: raw.resultados_destinos,
-    pdf_url: raw.pdf_url,
+    pdf_url: raw.pdf_url
+      ? raw.pdf_url.startsWith("http")
+        ? raw.pdf_url
+        : `${API_BASE_URL}${raw.pdf_url}`
+      : undefined,
   };
 }
 
