@@ -58,6 +58,7 @@ export interface CalculationInput {
   fluido: FluidParameters;
   suc: SuctionSystem[]; // Alterado para array
   recalque: DischargeSystem[];
+  reservatorio_dados?: object;
 }
 
 export interface DestinationResult {

@@ -514,6 +514,7 @@ const Index = () => {
           pressao_manometrica: Number(r.pressao_manometrica) || 0,
           trechos: r.trechos.map(mapPipeSectionToApi),
         })) as DischargeSystem[],
+        reservatorio_dados: reservoirResult ?? undefined,
       };
 
       const calculationResult = await api.calcular(dataToSend);

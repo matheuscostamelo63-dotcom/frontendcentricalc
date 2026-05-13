@@ -83,8 +83,8 @@ export async function getTiposDistribuicao(): Promise<TipoDistribuicao[]> {
 }
 
 export async function calcularReservatorio(dados: CalculoRequest): Promise<CalculoResponse> {
-  const data = await fetchReservatorioApi<{ resultado: CalculoResponse }>('/calcular-reservatorio', dados);
-  return data.resultado;
+  const data = await fetchReservatorioApi<{ reservatorio: CalculoResponse }>('/calcular-reservatorio', dados);
+  return data.reservatorio;
 }
 
 export async function validarReservatorio(dados: ValidacaoRequest): Promise<ValidacaoResponse> {
