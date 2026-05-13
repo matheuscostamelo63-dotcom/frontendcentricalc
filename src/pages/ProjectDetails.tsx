@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
-import { CalculationResult } from "@/lib/api";
+import { CalculationResult, normalizeResult } from "@/lib/api";
 import { toast } from "sonner"; // Importando toast do Sonner
 
 // Define a estrutura completa do projeto salvo
@@ -40,6 +40,7 @@ const ProjectDetails = () => {
     const foundProject = savedProjects.find((p: SavedProjectFull) => p.id === projectId);
 
     if (foundProject) {
+      foundProject.resultData = normalizeResult(foundProject.resultData);
       setProject(foundProject);
     } else {
       toast.error("Projeto não encontrado.");

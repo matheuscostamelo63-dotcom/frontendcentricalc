@@ -40,7 +40,8 @@ export const StatusBanner = ({ status }: StatusBannerProps) => {
     },
   };
 
-  const { icon: Icon, title, description, variant, className } = config[status];
+  const safeStatus = (status in config ? status : "error") as keyof typeof config;
+  const { icon: Icon, title, description, variant, className } = config[safeStatus];
 
   return (
     <Alert variant={variant} className={className}>

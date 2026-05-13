@@ -116,6 +116,55 @@ export const getAuthHeader = async (): Promise<Record<string, string>> => {
   return {};
 };
 
+export function normalizeResult(raw: any): CalculationResult {
+  // Suporta tanto o formato novo (sucesso/resultado/alertas) quanto o legado (status direto)
+  if (raw.status && !raw.sucesso && raw.sucesso !== false) {
+    return raw as CalculationResult;
+  }
+
+  const resultado = raw.resultado || {};
+  const alertas: any[] = raw.alertas || [];
+  const resumo = raw.resumo_alertas || {};
+
+  let status: CalculationResult["status"];
+  if (!raw.sucesso) {
+    status = "error";
+  } else if ((resumo.impeditivo ?? 0) > 0 || (resumo.critico ?? 0) > 0) {
+    status = "error";
+  } else if ((resumo.atencao ?? 0) > 0) {
+    status = "warning";
+  } else {
+    status = "ok";
+  }
+
+  const errors = alertas
+    .filter(a => ["CRITICO", "IMPEDITIVO"].includes(a.severidade))
+    .map(a => ({ campo: a.tipo || "geral", mensagem: a.mensagem }));
+
+  const warnings = alertas
+    .filter(a => ["ATENCAO", "INFO"].includes(a.severidade))
+    .map(a => ({ nivel: a.severidade, categoria: a.tipo || "geral", mensagem: a.mensagem }));
+
+  const recomendacoes = alertas.flatMap(a => a.recomendacoes || []);
+
+  const alturaM: number | undefined = resultado.altura_manometrica_m;
+
+  return {
+    status,
+    errors: errors.length > 0 ? errors : undefined,
+    warnings: warnings.length > 0 ? warnings : undefined,
+    recomendacoes: recomendacoes.length > 0 ? recomendacoes : undefined,
+    H_mt_necessario: alturaM,
+    pressao_descarga_bomba_bar: alturaM != null ? parseFloat((alturaM * 0.0981).toFixed(3)) : undefined,
+    P_hid_kW: resultado.potencia_cv != null ? parseFloat((resultado.potencia_cv * 0.7355).toFixed(3)) : undefined,
+    velocidade_succao_max: resultado["velocidade_sucção_ms"] ?? resultado.velocidade_succao_ms,
+    NPSHa_global_min: resultado.npsh_disponivel_m,
+    temperatura: resultado.temperatura,
+    resultados_destinos: raw.resultados_destinos,
+    pdf_url: raw.pdf_url,
+  };
+}
+
 export const api = {
   async getMateriais(): Promise<Material[]> {
     const response = await fetch(`${API_BASE_URL}/api/materiais`);
@@ -155,7 +204,8 @@ export const api = {
       throw new Error(errorData.message || "Erro ao realizar cálculo");
     }
 
-    return response.json();
+    const raw = await response.json();
+    return normalizeResult(raw);
   },
 };
 
