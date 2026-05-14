@@ -169,6 +169,110 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
         </Card>
       )}
 
+      {/* Motor Sizing */}
+      {result.motor && result.motor.P_motor_nominal_kW > 0 && (
+        <Card className="border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-base">Dimensionamento do Motor Elétrico</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground">Potência Hidráulica</div>
+                <div className="text-xl font-bold text-blue-700">
+                  {result.motor.P_hidraulica_kW.toFixed(3)} kW
+                </div>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground">Potência no Eixo</div>
+                <div className="text-xl font-bold text-blue-700">
+                  {result.motor.P_eixo_kW.toFixed(3)} kW
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  η_bomba = {(result.motor.eta_bomba_assumida * 100).toFixed(0)}%
+                </div>
+              </div>
+              <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground font-semibold">Motor Recomendado</div>
+                <div className="text-xl font-bold text-green-700">
+                  {result.motor.P_motor_nominal_kW.toFixed(2)} kW
+                </div>
+                <div className="text-sm font-medium text-green-600">
+                  {result.motor.P_motor_nominal_cv.toFixed(1)} CV
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  η_motor = {(result.motor.eta_motor_assumida * 100).toFixed(0)}% (IE3) + 15% margem
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              Rendimentos assumidos. Consulte a curva do fabricante para seleção definitiva.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Ns Classification */}
+      {result.ns_1450 !== undefined && result.ns_1450 > 0 && (
+        <Card className="border-purple-200">
+          <CardHeader>
+            <CardTitle className="text-base">Rotação Específica (Ns) e Tipo de Bomba</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground">Ns @ 1450 rpm</div>
+                <div className="text-2xl font-bold text-purple-700">{result.ns_1450.toFixed(1)}</div>
+              </div>
+              {result.ns_2900 !== undefined && result.ns_2900 > 0 && (
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <div className="text-xs text-muted-foreground">Ns @ 2900 rpm</div>
+                  <div className="text-2xl font-bold text-purple-700">{result.ns_2900.toFixed(1)}</div>
+                </div>
+              )}
+            </div>
+            {result.tipo_bomba_ns && (
+              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-sm px-3 py-1">
+                {result.tipo_bomba_ns}
+              </Badge>
+            )}
+            <p className="text-xs text-muted-foreground mt-2 italic">
+              Ns = n × √Q / H^0,75 — orienta a seleção do tipo de bomba adequado ao ponto de operação.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Diâmetro Econômico */}
+      {(result.dn_suc_mm || result.dn_rec_mm) && (
+        <Card className="border-emerald-200">
+          <CardHeader>
+            <CardTitle className="text-base">Sugestão de Diâmetro Econômico de Tubulação</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {result.dn_suc_mm && result.dn_suc_mm > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                  <div className="text-xs text-muted-foreground">Sucção</div>
+                  <div className="text-2xl font-bold text-emerald-700">DN {result.dn_suc_mm}</div>
+                  <div className="text-xs text-muted-foreground">V econômica: 1,0 m/s | NBR 5626: máx. 1,5 m/s</div>
+                </div>
+              )}
+              {result.dn_rec_mm && result.dn_rec_mm > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                  <div className="text-xs text-muted-foreground">Recalque</div>
+                  <div className="text-2xl font-bold text-emerald-700">DN {result.dn_rec_mm}</div>
+                  <div className="text-xs text-muted-foreground">V econômica: 1,5 m/s | máx. 2,5 m/s</div>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 italic">
+              DN comercial imediatamente superior ao calculado — D = √(4Q / π × V_econômica).
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Destination Results */}
       {result.resultados_destinos && result.resultados_destinos.length > 0 && (
         <Card>

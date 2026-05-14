@@ -46,6 +46,7 @@ import {
 } from "@/services/vazaoService";
 import { handleApiError } from "@/utils/errorHandler";
 import { useSistema } from "@/context/SistemaContext";
+import { saveProject } from "@/services/projectsService";
 
 // --- Form State Types ---
 
@@ -520,31 +521,19 @@ const Index = () => {
       const calculationResult = await api.calcular(dataToSend);
       setResult(calculationResult);
 
-      // --- START: Saving Project Data ---
-      const savedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
-
-      // Create a unique ID and timestamp
-      const projectId = Date.now().toString();
-      const creationDate = new Date().toISOString();
-
-      const projectData = {
-        id: projectId,
-        name: formData.name || `Projeto ${savedProjects.length + 1}`,
+      // --- Salvar projeto (Supabase + localStorage fallback) ---
+      await saveProject({
+        id: Date.now().toString(),
+        name: formData.name || `Projeto ${Date.now()}`,
         usuario: formData.usuario || "Não especificado",
-        data_criacao: creationDate,
-        Q: Q_m3h, // Save the calculated Q
+        data_criacao: new Date().toISOString(),
+        Q: Q_m3h,
         status: calculationResult.status,
-        // Save the full input data (before unit conversion)
         inputData: formData,
-        // Save the full result data
         resultData: calculationResult,
-        // Save reservoir data if available
         reservoirData: reservoirResult,
-      };
-
-      savedProjects.unshift(projectData); // Add to beginning of array
-      localStorage.setItem("savedProjects", JSON.stringify(savedProjects));
-      // --- END: Saving Project Data ---
+      });
+      // --- Fim do salvamento ---
 
 
       if (calculationResult.status === "ok") {

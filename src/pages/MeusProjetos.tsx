@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Calendar, User, FileText, Trash2, Eye, Calculator } from "lucide-react";
+import { Search, Calendar, User, FileText, Trash2, Eye, Calculator, Cloud, HardDrive } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,15 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-interface SavedProject {
-  id: string;
-  name: string;
-  usuario: string;
-  data_criacao: string;
-  Q: number;
-  status?: string;
-}
+import { loadProjects, deleteProject, SavedProject } from "@/services/projectsService";
 
 const MeusProjetos = () => {
   const navigate = useNavigate();
@@ -31,25 +23,23 @@ const MeusProjetos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [syncedCloud, setSyncedCloud] = useState(false);
 
   useEffect(() => {
-    loadProjects();
+    fetchProjects();
   }, []);
 
-  const loadProjects = () => {
-    // Carrega projetos do LocalStorage
-    const savedProjects = localStorage.getItem("savedProjects");
-    if (savedProjects) {
-      // Filtra apenas os campos necessários para a lista, mas garante que o ID está lá
-      const parsedProjects = JSON.parse(savedProjects).map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        usuario: p.usuario,
-        data_criacao: p.data_criacao,
-        Q: p.Q,
-        status: p.status,
-      }));
-      setProjects(parsedProjects);
+  const fetchProjects = async () => {
+    setLoadingProjects(true);
+    try {
+      const result = await loadProjects();
+      setProjects(result);
+      setSyncedCloud(true);
+    } catch {
+      setSyncedCloud(false);
+    } finally {
+      setLoadingProjects(false);
     }
   };
 
@@ -58,17 +48,10 @@ const MeusProjetos = () => {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (projectToDelete) {
-      // Remove o projeto do estado local
-      const updatedProjects = projects.filter((p) => p.id !== projectToDelete);
-      setProjects(updatedProjects);
-      
-      // Remove o projeto do LocalStorage (incluindo todos os dados)
-      const fullSavedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
-      const updatedFullProjects = fullSavedProjects.filter((p: SavedProject) => p.id !== projectToDelete);
-      localStorage.setItem("savedProjects", JSON.stringify(updatedFullProjects));
-
+      setProjects(prev => prev.filter(p => p.id !== projectToDelete));
+      await deleteProject(projectToDelete);
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
     }
@@ -96,13 +79,33 @@ const MeusProjetos = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          Meus Projetos
-        </h1>
-        <p className="text-muted-foreground">
-          Gerencie e acesse seus projetos de dimensionamento salvos
-        </p>
+      <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Meus Projetos
+          </h1>
+          <p className="text-muted-foreground">
+            Gerencie e acesse seus projetos de dimensionamento salvos
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          {loadingProjects ? (
+            <Badge variant="outline" className="gap-1">
+              <HardDrive className="h-3 w-3" /> Carregando...
+            </Badge>
+          ) : syncedCloud ? (
+            <Badge className="gap-1 bg-green-100 text-green-800 border-green-200">
+              <Cloud className="h-3 w-3" /> Sincronizado com a nuvem
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="gap-1 text-orange-700 border-orange-300">
+              <HardDrive className="h-3 w-3" /> Armazenamento local
+            </Badge>
+          )}
+          <Button variant="outline" size="sm" onClick={fetchProjects} disabled={loadingProjects}>
+            Sincronizar
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}

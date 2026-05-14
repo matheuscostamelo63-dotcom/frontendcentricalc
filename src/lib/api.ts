@@ -73,6 +73,16 @@ export interface DestinationResult {
   v_rec_max: number;
 }
 
+export interface MotorDimensionamento {
+  eta_bomba_assumida: number;
+  eta_motor_assumida: number;
+  P_hidraulica_kW: number;
+  P_eixo_kW: number;
+  P_motor_calculado_kW: number;
+  P_motor_nominal_kW: number;
+  P_motor_nominal_cv: number;
+}
+
 export interface CalculationResult {
   status: "ok" | "warning" | "error" | "validation_error";
   errors?: Array<{ campo: string; mensagem: string; tipo?: string }>;
@@ -87,6 +97,12 @@ export interface CalculationResult {
   viscosidade_cp?: number;
   resultados_destinos?: DestinationResult[];
   pdf_url?: string;
+  motor?: MotorDimensionamento;
+  ns_1450?: number;
+  ns_2900?: number;
+  tipo_bomba_ns?: string;
+  dn_suc_mm?: number;
+  dn_rec_mm?: number;
 }
 
 export const getAuthHeader = async (): Promise<Record<string, string>> => {
@@ -157,7 +173,7 @@ export function normalizeResult(raw: any): CalculationResult {
     recomendacoes: recomendacoes.length > 0 ? recomendacoes : undefined,
     H_mt_necessario: alturaM,
     pressao_descarga_bomba_bar: alturaM != null ? parseFloat((alturaM * 0.0981).toFixed(3)) : undefined,
-    P_hid_kW: resultado.potencia_cv != null ? parseFloat((resultado.potencia_cv * 0.7355).toFixed(3)) : undefined,
+    P_hid_kW: raw.P_hid_kW ?? (resultado.potencia_cv != null ? parseFloat((resultado.potencia_cv * 0.7355).toFixed(3)) : undefined),
     velocidade_succao_max: resultado["velocidade_sucção_ms"] ?? resultado.velocidade_succao_ms,
     NPSHa_global_min: resultado.npsh_disponivel_m,
     temperatura: resultado.temperatura,
@@ -167,6 +183,12 @@ export function normalizeResult(raw: any): CalculationResult {
         ? raw.pdf_url
         : `${API_BASE_URL}${raw.pdf_url}`
       : undefined,
+    motor: raw.motor,
+    ns_1450: raw.ns_1450,
+    ns_2900: raw.ns_2900,
+    tipo_bomba_ns: raw.tipo_bomba_ns,
+    dn_suc_mm: raw.dn_suc_mm,
+    dn_rec_mm: raw.dn_rec_mm,
   };
 }
 

@@ -1,0 +1,183 @@
+/**
+ * Serviço de persistência de projetos com Supabase + localStorage fallback.
+ *
+ * Para ativar o Supabase, execute a seguinte SQL no painel do Supabase:
+ *
+ * CREATE TABLE IF NOT EXISTS projetos (
+ *   id           TEXT PRIMARY KEY,
+ *   user_id      UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+ *   name         TEXT NOT NULL,
+ *   usuario      TEXT,
+ *   data_criacao TIMESTAMPTZ DEFAULT now(),
+ *   Q            NUMERIC,
+ *   status       TEXT,
+ *   input_data   JSONB,
+ *   result_data  JSONB,
+ *   reservoir_data JSONB
+ * );
+ *
+ * ALTER TABLE projetos ENABLE ROW LEVEL SECURITY;
+ * CREATE POLICY "Usuário vê só seus projetos" ON projetos
+ *   FOR ALL USING (auth.uid() = user_id);
+ */
+
+import { supabase } from '@/integrations/supabase/client';
+
+export interface SavedProject {
+  id: string;
+  name: string;
+  usuario: string;
+  data_criacao: string;
+  Q: number;
+  status?: string;
+  inputData?: unknown;
+  resultData?: unknown;
+  reservoirData?: unknown;
+}
+
+const LOCAL_KEY = 'savedProjects';
+
+// ── Supabase helpers ───────────────────────────────────────────────────────────
+
+async function getCurrentUserId(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id ?? null;
+}
+
+async function saveToSupabase(project: SavedProject): Promise<boolean> {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return false;
+
+    const { error } = await supabase.from('projetos').upsert({
+      id: project.id,
+      user_id: userId,
+      name: project.name,
+      usuario: project.usuario,
+      data_criacao: project.data_criacao,
+      Q: project.Q,
+      status: project.status,
+      input_data: project.inputData ?? null,
+      result_data: project.resultData ?? null,
+      reservoir_data: project.reservoirData ?? null,
+    });
+
+    if (error) {
+      console.warn('[Projects] Supabase save error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn('[Projects] Supabase save exception:', e);
+    return false;
+  }
+}
+
+async function loadFromSupabase(): Promise<SavedProject[] | null> {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return null;
+
+    const { data, error } = await supabase
+      .from('projetos')
+      .select('id, name, usuario, data_criacao, Q, status, input_data, result_data, reservoir_data')
+      .eq('user_id', userId)
+      .order('data_criacao', { ascending: false });
+
+    if (error) {
+      console.warn('[Projects] Supabase load error:', error.message);
+      return null;
+    }
+
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      usuario: r.usuario,
+      data_criacao: r.data_criacao,
+      Q: r.Q,
+      status: r.status,
+      inputData: r.input_data,
+      resultData: r.result_data,
+      reservoirData: r.reservoir_data,
+    }));
+  } catch (e) {
+    console.warn('[Projects] Supabase load exception:', e);
+    return null;
+  }
+}
+
+async function deleteFromSupabase(id: string): Promise<boolean> {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return false;
+
+    const { error } = await supabase
+      .from('projetos')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('[Projects] Supabase delete error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn('[Projects] Supabase delete exception:', e);
+    return false;
+  }
+}
+
+// ── localStorage helpers ───────────────────────────────────────────────────────
+
+function loadFromLocal(): SavedProject[] {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveToLocal(projects: SavedProject[]): void {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(projects));
+}
+
+// ── Public API ─────────────────────────────────────────────────────────────────
+
+export async function saveProject(project: SavedProject): Promise<void> {
+  // Sempre salva no localStorage como fallback imediato
+  const local = loadFromLocal();
+  const idx = local.findIndex(p => p.id === project.id);
+  if (idx >= 0) local[idx] = project;
+  else local.unshift(project);
+  saveToLocal(local);
+
+  // Tenta salvar no Supabase em paralelo (sem bloquear)
+  saveToSupabase(project).then(ok => {
+    if (ok) console.log('[Projects] Salvo no Supabase:', project.id);
+  });
+}
+
+export async function loadProjects(): Promise<SavedProject[]> {
+  const remote = await loadFromSupabase();
+  if (remote !== null) {
+    // Sincroniza Supabase → localStorage
+    saveToLocal(remote);
+    return remote;
+  }
+  // Fallback: localStorage
+  return loadFromLocal();
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  // Remove do localStorage
+  const local = loadFromLocal().filter(p => p.id !== id);
+  saveToLocal(local);
+
+  // Remove do Supabase
+  deleteFromSupabase(id);
+}
+
+export function loadProjectById(id: string): SavedProject | null {
+  return loadFromLocal().find(p => p.id === id) ?? null;
+}
