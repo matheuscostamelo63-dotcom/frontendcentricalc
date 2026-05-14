@@ -5,15 +5,11 @@ import {
   BookOpen,
   Calculator,
   CheckCircle,
-  Code2,
   Database,
   Droplet,
   FileText,
   Info,
-  Server,
-  Shield,
   XCircle,
-  Zap,
 } from "lucide-react";
 
 // ─── Seção genérica ───────────────────────────────────────────────────────────
@@ -575,101 +571,7 @@ const Sobre = () => {
           />
         </Section>
 
-        {/* ── 6. Tecnologias ─────────────────────────────────────────────── */}
-        <Section
-          icon={<Code2 className="h-5 w-5 text-primary" />}
-          title="Tecnologias Utilizadas"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Frontend */}
-            <div>
-              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-yellow-500" />
-                Frontend (Interface Web)
-              </h3>
-              <div className="space-y-2 text-sm">
-                {[
-                  ["React 18", "Biblioteca de interface de usuário com componentes reativos"],
-                  ["TypeScript", "Tipagem estática para segurança e manutenibilidade do código"],
-                  ["Vite", "Bundler e servidor de desenvolvimento ultrarrápido"],
-                  ["Tailwind CSS", "Framework CSS utilitário para estilização responsiva"],
-                  ["shadcn/ui", "Biblioteca de componentes acessíveis baseados em Radix UI"],
-                  ["React Router v6", "Roteamento client-side com rotas protegidas"],
-                  ["React Hook Form", "Gerenciamento de formulários com validação eficiente"],
-                  ["Zod", "Validação de schema em TypeScript"],
-                  ["Lucide React", "Biblioteca de ícones SVG"],
-                  ["Recharts", "Gráficos interativos (curva do sistema)"],
-                  ["Supabase JS SDK", "Autenticação e persistência em nuvem"],
-                ].map(([tech, desc]) => (
-                  <div key={tech} className="flex gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>{tech}</strong>
-                      <span className="text-muted-foreground"> — {desc}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* Backend */}
-            <div>
-              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Server className="h-4 w-4 text-blue-500" />
-                Backend (API de Cálculo)
-              </h3>
-              <div className="space-y-2 text-sm">
-                {[
-                  ["Python 3.11+", "Linguagem principal do servidor de cálculo"],
-                  ["Flask", "Micro-framework REST API leve e extensível"],
-                  ["NumPy", "Computação numérica vetorial para cálculos hidráulicos"],
-                  ["Matplotlib", "Geração de gráficos da curva do sistema"],
-                  ["ReportLab", "Geração de relatórios técnicos em PDF"],
-                  ["Pillow (PIL)", "Processamento de imagens para composição do PDF"],
-                  ["Cloudinary", "Armazenamento e CDN dos relatórios PDF gerados"],
-                  ["Supabase (PostgREST)", "Banco de dados PostgreSQL como serviço (projetos, alertas)"],
-                  ["JWT (PyJWT)", "Autenticação stateless com tokens de acesso"],
-                  ["httpx", "Cliente HTTP assíncrono para integrações externas"],
-                  ["Gunicorn", "Servidor WSGI para produção"],
-                ].map(([tech, desc]) => (
-                  <div key={tech} className="flex gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>{tech}</strong>
-                      <span className="text-muted-foreground"> — {desc}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Infraestrutura */}
-          <div className="mt-6">
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <Shield className="h-4 w-4 text-purple-500" />
-              Infraestrutura e Implantação
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              {[
-                ["Netlify", "Hospedagem do frontend com deploy automático via Git"],
-                ["Render / Railway", "Hospedagem do backend Flask em contêiner"],
-                ["Supabase", "Banco PostgreSQL gerenciado, autenticação OAuth e Row Level Security"],
-                ["Cloudinary", "Armazenamento de objetos para PDFs e imagens gerados"],
-                ["GitHub", "Controle de versão e integração contínua (CI/CD)"],
-              ].map(([tech, desc]) => (
-                <div key={tech} className="flex gap-2">
-                  <CheckCircle className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>{tech}</strong>
-                    <span className="text-muted-foreground"> — {desc}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-
-        {/* ── 7. Responsabilidades ───────────────────────────────────────── */}
+        {/* ── 6. Responsabilidades ───────────────────────────────────────── */}
         <Section
           icon={<FileText className="h-5 w-5 text-red-500" />}
           title="Responsabilidades e Limitações"
