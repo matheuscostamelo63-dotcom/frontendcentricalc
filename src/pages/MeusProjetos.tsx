@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Calendar, User, FileText, Trash2, Eye, Calculator, Cloud, HardDrive } from "lucide-react";
+import { Search, Calendar, User, FileText, Trash2, Eye, Calculator, Cloud, HardDrive, LogIn } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,28 +16,31 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { loadProjects, deleteProject, SavedProject } from "@/services/projectsService";
+import { useAuth } from "@/context/AuthContext";
 
 const MeusProjetos = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [loadingProjects, setLoadingProjects] = useState(true);
-  const [syncedCloud, setSyncedCloud] = useState(false);
+  const [cloudSynced, setCloudSynced] = useState(false);
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (!authLoading) fetchProjects();
+  }, [authLoading]);
 
   const fetchProjects = async () => {
     setLoadingProjects(true);
     try {
       const result = await loadProjects();
       setProjects(result);
-      setSyncedCloud(true);
+      // Só considera sincronizado com a nuvem se o usuário está autenticado
+      setCloudSynced(!!user);
     } catch {
-      setSyncedCloud(false);
+      setCloudSynced(false);
     } finally {
       setLoadingProjects(false);
     }
@@ -77,6 +80,8 @@ const MeusProjetos = () => {
     });
   };
 
+  const isLoading = authLoading || loadingProjects;
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
@@ -89,11 +94,11 @@ const MeusProjetos = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm">
-          {loadingProjects ? (
+          {isLoading ? (
             <Badge variant="outline" className="gap-1">
               <HardDrive className="h-3 w-3" /> Carregando...
             </Badge>
-          ) : syncedCloud ? (
+          ) : cloudSynced ? (
             <Badge className="gap-1 bg-green-100 text-green-800 border-green-200">
               <Cloud className="h-3 w-3" /> Sincronizado com a nuvem
             </Badge>
@@ -102,11 +107,29 @@ const MeusProjetos = () => {
               <HardDrive className="h-3 w-3" /> Armazenamento local
             </Badge>
           )}
-          <Button variant="outline" size="sm" onClick={fetchProjects} disabled={loadingProjects}>
+          <Button variant="outline" size="sm" onClick={fetchProjects} disabled={isLoading}>
             Sincronizar
           </Button>
         </div>
       </div>
+
+      {/* Login prompt when not authenticated */}
+      {!isLoading && !user && (
+        <Card className="mb-6 border-orange-200 bg-orange-50">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6">
+            <div>
+              <p className="font-semibold text-orange-800">Você não está logado</p>
+              <p className="text-sm text-orange-700 mt-1">
+                Faça login para sincronizar seus projetos na nuvem e acessá-los em qualquer dispositivo.
+              </p>
+            </div>
+            <Button onClick={() => navigate("/login")} className="shrink-0">
+              <LogIn className="mr-2 h-4 w-4" />
+              Fazer Login
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Search Bar */}
       <Card className="mb-6">
@@ -135,13 +158,23 @@ const MeusProjetos = () => {
             <p className="text-muted-foreground text-center mb-6">
               {searchTerm
                 ? "Nenhum projeto corresponde à sua busca."
-                : "Você ainda não criou nenhum projeto. Comece criando um novo dimensionamento."}
+                : user
+                  ? "Você ainda não criou nenhum projeto. Comece criando um novo dimensionamento."
+                  : "Faça login para ver seus projetos salvos na nuvem."}
             </p>
             {!searchTerm && (
-              <Button onClick={() => navigate("/")}>
-                <Calculator className="mr-2 h-4 w-4" />
-                Novo Dimensionamento
-              </Button>
+              <div className="flex gap-3">
+                {!user && (
+                  <Button variant="outline" onClick={() => navigate("/login")}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Fazer Login
+                  </Button>
+                )}
+                <Button onClick={() => navigate("/")}>
+                  <Calculator className="mr-2 h-4 w-4" />
+                  Novo Dimensionamento
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
