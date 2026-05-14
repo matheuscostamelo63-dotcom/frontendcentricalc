@@ -59,7 +59,7 @@ async function saveToSupabase(project: SavedProject): Promise<boolean> {
       name: project.name,
       usuario: project.usuario,
       data_criacao: project.data_criacao,
-      Q: project.Q,
+      q: project.Q,
       status: project.status,
       input_data: project.inputData ?? null,
       result_data: project.resultData ?? null,
@@ -88,7 +88,7 @@ async function loadFromSupabase(): Promise<SavedProject[] | null> {
 
     const { data, error } = await supabase
       .from('projetos')
-      .select('id, name, usuario, data_criacao, Q, status, input_data, result_data, reservoir_data')
+      .select('id, name, usuario, data_criacao, q, status, input_data, result_data, reservoir_data')
       .eq('user_id', userId)
       .order('data_criacao', { ascending: false });
 
@@ -103,7 +103,7 @@ async function loadFromSupabase(): Promise<SavedProject[] | null> {
       name: r.name,
       usuario: r.usuario,
       data_criacao: r.data_criacao,
-      Q: r.Q,
+      Q: r.q,
       status: r.status,
       inputData: r.input_data,
       resultData: r.result_data,
@@ -199,7 +199,7 @@ export async function loadProjectByIdAsync(id: string): Promise<SavedProject | n
     if (userId) {
       const { data, error } = await supabase
         .from('projetos')
-        .select('id, name, usuario, data_criacao, Q, status, input_data, result_data, reservoir_data')
+        .select('id, name, usuario, data_criacao, q, status, input_data, result_data, reservoir_data')
         .eq('id', id)
         .eq('user_id', userId)
         .single();
