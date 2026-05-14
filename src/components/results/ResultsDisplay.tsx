@@ -150,7 +150,7 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
                     NPSHa Global Mínimo
                   </div>
                   <div className="text-2xl font-bold text-primary">
-                    {result.NPSHa_global_min.toFixed(2)} m
+                    {result.NPSHa_global_min.toFixed(2)} mca
                   </div>
                 </div>
               )}

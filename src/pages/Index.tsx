@@ -522,24 +522,29 @@ const Index = () => {
       setResult(calculationResult);
 
       // --- Salvar projeto (Supabase + localStorage fallback) ---
-      await saveProject({
+      const { cloudSaved } = await saveProject({
         id: Date.now().toString(),
         name: formData.name || `Projeto ${Date.now()}`,
         usuario: formData.usuario || "Não especificado",
         data_criacao: new Date().toISOString(),
         Q: Q_m3h,
         status: calculationResult.status,
-        inputData: formData,
+        inputData: dataToSend,
         resultData: calculationResult,
         reservoirData: reservoirResult,
       });
       // --- Fim do salvamento ---
 
-
       if (calculationResult.status === "ok") {
-        toast.success("Cálculo realizado com sucesso e projeto salvo!");
+        toast.success(cloudSaved
+          ? "Cálculo realizado com sucesso e projeto salvo na nuvem!"
+          : "Cálculo realizado! Projeto salvo localmente (faça login para sincronizar na nuvem)."
+        );
       } else if (calculationResult.status === "warning") {
-        toast.warning("Cálculo concluído com avisos e projeto salvo.");
+        toast.warning(cloudSaved
+          ? "Cálculo concluído com avisos e projeto salvo na nuvem."
+          : "Cálculo concluído com avisos. Projeto salvo localmente (faça login para sincronizar)."
+        );
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Erro ao realizar cálculo.";

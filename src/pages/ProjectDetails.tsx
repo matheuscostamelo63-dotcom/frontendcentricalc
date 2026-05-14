@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { CalculationResult, normalizeResult } from "@/lib/api";
 import { toast } from "sonner";
 import { loadProjectByIdAsync } from "@/services/projectsService";
+import { useAuth } from "@/context/AuthContext";
 
 interface SavedProjectFull {
   id: string;
@@ -22,10 +23,13 @@ interface SavedProjectFull {
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [project, setProject] = useState<SavedProjectFull | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notFoundReason, setNotFoundReason] = useState<"unauthenticated" | "missing" | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (id) {
       loadProject(id);
     } else {
@@ -33,7 +37,7 @@ const ProjectDetails = () => {
       toast.error("ID do projeto não fornecido.");
       navigate("/meus-projetos");
     }
-  }, [id, navigate]);
+  }, [id, navigate, authLoading]);
 
   const loadProject = async (projectId: string) => {
     try {
@@ -46,8 +50,7 @@ const ProjectDetails = () => {
           resultData: normalizeResult(found.resultData as any),
         });
       } else {
-        toast.error("Projeto não encontrado.");
-        navigate("/meus-projetos");
+        setNotFoundReason(user ? "missing" : "unauthenticated");
       }
     } catch {
       toast.error("Erro ao carregar projeto.");
@@ -66,20 +69,38 @@ const ProjectDetails = () => {
   }
 
   if (!project) {
+    const isAuthIssue = notFoundReason === "unauthenticated";
     return (
       <div className="container mx-auto py-8 px-4 max-w-7xl">
-        <Card className="border-destructive">
+        <Card className={isAuthIssue ? "border-warning" : "border-destructive"}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5" />
-              Projeto Não Encontrado
+            <CardTitle className={`flex items-center gap-2 ${isAuthIssue ? "text-warning" : "text-destructive"}`}>
+              {isAuthIssue ? <LogIn className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+              {isAuthIssue ? "Login Necessário" : "Projeto Não Encontrado"}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Não foi possível carregar os detalhes do projeto com ID: {id}.</p>
-            <Button onClick={() => navigate("/meus-projetos")} className="mt-4">
-              Voltar para Meus Projetos
-            </Button>
+            {isAuthIssue ? (
+              <>
+                <p className="mb-2">Este projeto está salvo na nuvem. Faça login para acessá-lo em qualquer dispositivo.</p>
+                <p className="text-sm text-muted-foreground mb-4">Projetos sem login ficam salvos apenas no navegador local.</p>
+                <div className="flex gap-2">
+                  <Button onClick={() => navigate("/login")}>
+                    <LogIn className="mr-2 h-4 w-4" /> Fazer Login
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate("/meus-projetos")}>
+                    Voltar
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p>Não foi possível carregar os detalhes do projeto com ID: {id}.</p>
+                <Button onClick={() => navigate("/meus-projetos")} className="mt-4">
+                  Voltar para Meus Projetos
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -144,7 +144,7 @@ function saveToLocal(projects: SavedProject[]): void {
 
 // ── Public API ─────────────────────────────────────────────────────────────────
 
-export async function saveProject(project: SavedProject): Promise<void> {
+export async function saveProject(project: SavedProject): Promise<{ cloudSaved: boolean }> {
   // Sempre salva no localStorage como fallback imediato
   const local = loadFromLocal();
   const idx = local.findIndex(p => p.id === project.id);
@@ -152,10 +152,14 @@ export async function saveProject(project: SavedProject): Promise<void> {
   else local.unshift(project);
   saveToLocal(local);
 
-  // Tenta salvar no Supabase em paralelo (sem bloquear)
-  saveToSupabase(project).then(ok => {
-    if (ok) console.log('[Projects] Salvo no Supabase:', project.id);
-  });
+  // Aguarda resultado do Supabase para informar o chamador
+  const cloudSaved = await saveToSupabase(project);
+  if (cloudSaved) {
+    console.log('[Projects] Salvo no Supabase:', project.id);
+  } else {
+    console.warn('[Projects] Projeto salvo apenas localmente (Supabase indisponível ou usuário não autenticado)');
+  }
+  return { cloudSaved };
 }
 
 export async function loadProjects(): Promise<SavedProject[]> {
