@@ -111,7 +111,7 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
                   Hmt Necessário
                 </div>
                 <div className="text-2xl font-bold text-primary">
-                  {result.H_mt_necessario.toFixed(2)} m
+                  {result.H_mt_necessario.toFixed(2)} mca
                 </div>
               </div>
               {result.pressao_descarga_bomba_bar !== undefined && (
