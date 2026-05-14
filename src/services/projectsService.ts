@@ -210,7 +210,7 @@ export async function loadProjectByIdAsync(id: string): Promise<SavedProject | n
           name: data.name,
           usuario: data.usuario,
           data_criacao: data.data_criacao,
-          Q: data.Q,
+          Q: data.q,
           status: data.status,
           inputData: data.input_data,
           resultData: data.result_data,
