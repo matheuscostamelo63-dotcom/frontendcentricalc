@@ -157,7 +157,7 @@ const ProjectDetails = () => {
           <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="p-3 bg-secondary rounded-lg">
               <p className="text-sm text-muted-foreground">Vazão (m³/h)</p>
-              <p className="font-semibold">{project.inputData.Q}</p>
+              <p className="font-semibold">{project.Q}</p>
             </div>
             <div className="p-3 bg-secondary rounded-lg">
               <p className="text-sm text-muted-foreground">NPSHr (m.c.a)</p>
