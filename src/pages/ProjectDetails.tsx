@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultsDisplay } from "@/components/results/ResultsDisplay";
 import { CalculationResult, normalizeResult } from "@/lib/api";
-import { toast } from "sonner"; // Importando toast do Sonner
+import { toast } from "sonner";
+import { loadProjectByIdAsync } from "@/services/projectsService";
 
-// Define a estrutura completa do projeto salvo
 interface SavedProjectFull {
   id: string;
   name: string;
@@ -15,7 +15,7 @@ interface SavedProjectFull {
   data_criacao: string;
   Q: number;
   status: "ok" | "warning" | "error" | "validation_error";
-  inputData: any; // Usamos 'any' para simplificar a tipagem dos dados de entrada complexos
+  inputData: any;
   resultData: CalculationResult;
 }
 
@@ -35,18 +35,26 @@ const ProjectDetails = () => {
     }
   }, [id, navigate]);
 
-  const loadProject = (projectId: string) => {
-    const savedProjects = JSON.parse(localStorage.getItem("savedProjects") || "[]");
-    const foundProject = savedProjects.find((p: SavedProjectFull) => p.id === projectId);
-
-    if (foundProject) {
-      foundProject.resultData = normalizeResult(foundProject.resultData);
-      setProject(foundProject);
-    } else {
-      toast.error("Projeto não encontrado.");
+  const loadProject = async (projectId: string) => {
+    try {
+      const found = await loadProjectByIdAsync(projectId);
+      if (found) {
+        setProject({
+          ...found,
+          status: (found.status ?? "ok") as SavedProjectFull["status"],
+          inputData: found.inputData,
+          resultData: normalizeResult(found.resultData as any),
+        });
+      } else {
+        toast.error("Projeto não encontrado.");
+        navigate("/meus-projetos");
+      }
+    } catch {
+      toast.error("Erro ao carregar projeto.");
       navigate("/meus-projetos");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (loading) {

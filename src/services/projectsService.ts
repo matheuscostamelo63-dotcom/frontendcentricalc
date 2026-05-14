@@ -181,3 +181,35 @@ export async function deleteProject(id: string): Promise<void> {
 export function loadProjectById(id: string): SavedProject | null {
   return loadFromLocal().find(p => p.id === id) ?? null;
 }
+
+export async function loadProjectByIdAsync(id: string): Promise<SavedProject | null> {
+  try {
+    const userId = await getCurrentUserId();
+    if (userId) {
+      const { data, error } = await supabase
+        .from('projetos')
+        .select('id, name, usuario, data_criacao, Q, status, input_data, result_data, reservoir_data')
+        .eq('id', id)
+        .eq('user_id', userId)
+        .single();
+
+      if (!error && data) {
+        const project: SavedProject = {
+          id: data.id,
+          name: data.name,
+          usuario: data.usuario,
+          data_criacao: data.data_criacao,
+          Q: data.Q,
+          status: data.status,
+          inputData: data.input_data,
+          resultData: data.result_data,
+          reservoirData: data.reservoir_data,
+        };
+        return project;
+      }
+    }
+  } catch (e) {
+    console.warn('[Projects] loadProjectByIdAsync Supabase error:', e);
+  }
+  return loadFromLocal().find(p => p.id === id) ?? null;
+}
