@@ -47,7 +47,11 @@ async function getCurrentUserId(): Promise<string | null> {
 async function saveToSupabase(project: SavedProject): Promise<boolean> {
   try {
     const userId = await getCurrentUserId();
-    if (!userId) return false;
+    if (!userId) {
+      console.warn('[Projects] saveToSupabase: usuário não autenticado');
+      return false;
+    }
+    console.log('[Projects] saveToSupabase: salvando projeto', project.id, 'para user_id:', userId);
 
     const { error } = await supabase.from('projetos').upsert({
       id: project.id,
@@ -76,7 +80,11 @@ async function saveToSupabase(project: SavedProject): Promise<boolean> {
 async function loadFromSupabase(): Promise<SavedProject[] | null> {
   try {
     const userId = await getCurrentUserId();
-    if (!userId) return null;
+    if (!userId) {
+      console.warn('[Projects] loadFromSupabase: usuário não autenticado');
+      return null;
+    }
+    console.log('[Projects] loadFromSupabase: buscando projetos para user_id:', userId);
 
     const { data, error } = await supabase
       .from('projetos')
@@ -89,6 +97,7 @@ async function loadFromSupabase(): Promise<SavedProject[] | null> {
       return null;
     }
 
+    console.log('[Projects] Supabase retornou', (data ?? []).length, 'projeto(s)');
     return (data ?? []).map((r: any) => ({
       id: r.id,
       name: r.name,
@@ -162,15 +171,13 @@ export async function saveProject(project: SavedProject): Promise<{ cloudSaved: 
   return { cloudSaved };
 }
 
-export async function loadProjects(): Promise<SavedProject[]> {
+export async function loadProjects(): Promise<{ projects: SavedProject[]; fromCloud: boolean }> {
   const remote = await loadFromSupabase();
   if (remote !== null) {
-    // Sincroniza Supabase → localStorage
     saveToLocal(remote);
-    return remote;
+    return { projects: remote, fromCloud: true };
   }
-  // Fallback: localStorage
-  return loadFromLocal();
+  return { projects: loadFromLocal(), fromCloud: false };
 }
 
 export async function deleteProject(id: string): Promise<void> {

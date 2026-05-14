@@ -35,10 +35,9 @@ const MeusProjetos = () => {
   const fetchProjects = async () => {
     setLoadingProjects(true);
     try {
-      const result = await loadProjects();
+      const { projects: result, fromCloud } = await loadProjects();
       setProjects(result);
-      // Só considera sincronizado com a nuvem se o usuário está autenticado
-      setCloudSynced(!!user);
+      setCloudSynced(fromCloud);
     } catch {
       setCloudSynced(false);
     } finally {
