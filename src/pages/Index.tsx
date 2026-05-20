@@ -244,18 +244,22 @@ const Index = () => {
 
   // Use setTipoSistema from context
   const handleTipoSistemaChange = useCallback(async (tipo: TipoSistema) => {
-    console.log('[DEBUG] Setting tipoSistema to:', tipo);
     setTipoSistema(tipo);
     setVazaoResultado(null);
     setHighlightField(null);
-    setFormData(prev => ({ ...prev, Q: "" })); // Clear Q when changing system type
+    setFormData(prev => ({ ...prev, Q: "" }));
+    setMetodoAtivo('manual');
+    setMetodosPermitidos(['manual']);
+    setMetodoRecomendado(null);
 
-    console.log('[DEBUG] Validating tipo with backend...');
-    const validacao = await validarTipoVazao(tipo);
-    console.log('[DEBUG] Backend validation response:', validacao);
-    setMetodosPermitidos(validacao.metodos_permitidos);
-    setMetodoAtivo(validacao.recomendado);
-    setMetodoRecomendado(validacao.recomendado);
+    try {
+      const validacao = await validarTipoVazao(tipo);
+      setMetodosPermitidos(validacao.metodos_permitidos);
+      setMetodoAtivo(validacao.recomendado);
+      setMetodoRecomendado(validacao.recomendado);
+    } catch {
+      // mantém modo manual como fallback
+    }
   }, [setTipoSistema]);
 
   // NOVO HANDLER: Atualiza formData.Q em tempo real e limpa o resultado da vazão se estiver visível
@@ -879,7 +883,6 @@ const Index = () => {
         </Collapsible>
 
         {/* Reservoir Calculation (Section 4) - Conditional for Agua Fria (NBR 5626) */}
-        {console.log('[DEBUG] tipoSistema value:', tipoSistema, 'Should show reservoir?', tipoSistema === 'agua_fria')}
         {tipoSistema === 'agua_fria' && (
           <div id="reservatorio-section" className="scroll-mt-20">
             <CalculoReservatorio onResultado={(res) => setReservoirResult(res)} />
