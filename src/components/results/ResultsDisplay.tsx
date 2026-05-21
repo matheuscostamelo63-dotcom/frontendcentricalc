@@ -1,8 +1,18 @@
+import { useState } from "react";
 import { CalculationResult } from "@/lib/api";
 import { StatusBanner } from "./StatusBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, AlertTriangle, CheckCircle, Download, Info } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  Download,
+  Info,
+  Wrench,
+  ClipboardCheck,
+  ShieldAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,12 +26,61 @@ import { Badge } from "@/components/ui/badge";
 
 interface ResultsDisplayProps {
   result: CalculationResult;
+  /** Quando fornecido, exibe o botão "Rever Projeto" nos resultados com alertas */
+  onCorrigirDimensionamento?: () => void;
 }
 
-export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
+export const ResultsDisplay = ({ result, onCorrigirDimensionamento }: ResultsDisplayProps) => {
+  const [dimensionamentoConfirmado, setDimensionamentoConfirmado] = useState(false);
+
+  const hasProblems =
+    result.status === "warning" ||
+    result.status === "error" ||
+    result.status === "validation_error" ||
+    (result.errors && result.errors.length > 0) ||
+    (result.warnings && result.warnings.length > 0);
+
+  // PDF só disponível quando não há erros bloqueantes
+  const pdfDisponivel =
+    !!result.pdf_url &&
+    result.status !== "error" &&
+    result.status !== "validation_error";
+
+  const temAvisos = result.status === "warning" || (result.warnings && result.warnings.length > 0);
+
   return (
     <div className="space-y-6">
       <StatusBanner status={result.status} />
+
+      {/* Banner de ação: Rever Projeto */}
+      {hasProblems && onCorrigirDimensionamento && (
+        <Card className="border-amber-400 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-600">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <Wrench className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">
+                    Dimensionamento com pendências
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                    Corrija os parâmetros abaixo e recalcule. Todos os dados de entrada
+                    serão mantidos para facilitar o ajuste.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={onCorrigirDimensionamento}
+                className="gap-2 bg-amber-600 hover:bg-amber-700 text-white shrink-0 w-full sm:w-auto"
+                size="sm"
+              >
+                <Wrench className="h-4 w-4" />
+                Rever Projeto
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Errors */}
       {result.errors && result.errors.length > 0 && (
@@ -320,33 +379,107 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
         </Card>
       )}
 
-      {/* PDF Download */}
-      {result.pdf_url && (
-        <Card className="border-accent">
-          <CardHeader>
-            <CardTitle>Relatório PDF</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">
-                  O relatório completo com gráficos e detalhes está disponível
-                  para download.
-                </p>
-              </div>
-              <Button asChild className="gap-2">
-                <a
-                  href={result.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+      {/* ── Seção do Relatório PDF ─────────────────────────────────────────────── */}
+      {pdfDisponivel && (
+        <>
+          {!dimensionamentoConfirmado ? (
+            /* Etapa de confirmação — obrigatória antes de liberar o PDF */
+            <Card
+              className={
+                temAvisos
+                  ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-600"
+                  : "border-green-400 bg-green-50 dark:bg-green-950/30 dark:border-green-600"
+              }
+            >
+              <CardHeader>
+                <CardTitle
+                  className={`flex items-center gap-2 text-base ${
+                    temAvisos
+                      ? "text-amber-800 dark:text-amber-300"
+                      : "text-green-800 dark:text-green-300"
+                  }`}
                 >
-                  <Download className="h-4 w-4" />
-                  Baixar Relatório
-                </a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                  {temAvisos ? (
+                    <ShieldAlert className="h-5 w-5" />
+                  ) : (
+                    <ClipboardCheck className="h-5 w-5" />
+                  )}
+                  Confirmar Dimensionamento para Gerar Relatório
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p
+                  className={`text-sm mb-4 ${
+                    temAvisos
+                      ? "text-amber-700 dark:text-amber-400"
+                      : "text-green-700 dark:text-green-400"
+                  }`}
+                >
+                  {temAvisos
+                    ? "Este dimensionamento possui avisos normativos. Revise os alertas acima e, se estiver ciente dos riscos, confirme para liberar o relatório PDF."
+                    : "O dimensionamento está em conformidade. Confirme para liberar o download do relatório PDF completo."}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {onCorrigirDimensionamento && (
+                    <Button
+                      variant="outline"
+                      onClick={onCorrigirDimensionamento}
+                      className="gap-2"
+                      size="sm"
+                    >
+                      <Wrench className="h-4 w-4" />
+                      Rever Projeto
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => setDimensionamentoConfirmado(true)}
+                    className={`gap-2 ${
+                      temAvisos
+                        ? "bg-amber-600 hover:bg-amber-700 text-white"
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
+                    size="sm"
+                  >
+                    <ClipboardCheck className="h-4 w-4" />
+                    {temAvisos
+                      ? "Confirmar Ciente dos Avisos"
+                      : "Confirmar Dimensionamento"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            /* PDF liberado após confirmação */
+            <Card className="border-accent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  Relatório PDF
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">
+                      Dimensionamento confirmado. O relatório completo com gráficos
+                      e detalhes está disponível para download.
+                    </p>
+                  </div>
+                  <Button asChild className="gap-2 shrink-0">
+                    <a
+                      href={result.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Download className="h-4 w-4" />
+                      Baixar Relatório
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );

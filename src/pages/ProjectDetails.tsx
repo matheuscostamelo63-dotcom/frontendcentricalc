@@ -180,7 +180,17 @@ const ProjectDetails = () => {
 
         {/* Display Results */}
         <h2 className="text-2xl font-bold pt-4">Resultados do Cálculo</h2>
-        <ResultsDisplay result={project.resultData} />
+        <ResultsDisplay
+          result={project.resultData}
+          onCorrigirDimensionamento={
+            project.inputData
+              ? () =>
+                  navigate("/", {
+                    state: { inputData: project.inputData },
+                  })
+              : undefined
+          }
+        />
       </div>
     </div>
   );

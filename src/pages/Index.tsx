@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { Calculator, Plus, Loader2, RefreshCw, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ import {
 import { handleApiError } from "@/utils/errorHandler";
 import { useSistema } from "@/context/SistemaContext";
 import { saveProject } from "@/services/projectsService";
+import { apiInputToFormData } from "@/utils/formRestoreUtils";
 
 // --- Form State Types ---
 
@@ -101,6 +103,7 @@ interface FormDataInput extends Omit<CalculationInput, "Q" | "NPSHr" | "fluido" 
 
 const Index = () => {
   const { tipoSistema, setTipoSistema, normaSelecionada } = useSistema(); // Use global context
+  const location = useLocation();
 
   const [materials, setMaterials] = useState<Material[]>([]);
   const [components, setComponents] = useState<Componente[]>([]);
@@ -199,6 +202,37 @@ const Index = () => {
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  // Restaura dados de entrada quando o usuário navega de ProjectDetails para corrigir
+  useEffect(() => {
+    const state = location.state as { inputData?: unknown } | null;
+    if (!state?.inputData) return;
+
+    try {
+      const restoredFormData = apiInputToFormData(state.inputData as Parameters<typeof apiInputToFormData>[0]);
+      setFormData(restoredFormData);
+      setResult(null);
+      setVazaoResultado(null);
+      setMetodosPermitidos([]);
+      setMetodoAtivo(null);
+      setMetodoRecomendado(null);
+
+      // Limpa o state do router para evitar restauração dupla ao navegar internamente
+      window.history.replaceState({}, "", location.pathname);
+
+      toast.info("Dados do dimensionamento anterior restaurados. Ajuste os parâmetros e recalcule.");
+    } catch (e) {
+      console.warn("[Index] Falha ao restaurar inputData do router state:", e);
+    }
+    // Executar apenas quando o componente monta com state presente
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Limpa o resultado e rola ao topo mantendo todos os dados de entrada intactos */
+  const handleCorrigirDimensionamento = useCallback(() => {
+    setResult(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const loadData = async () => {
@@ -983,7 +1017,10 @@ const Index = () => {
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : result ? (
-                <ResultsDisplay result={result} />
+                <ResultsDisplay
+                  result={result}
+                  onCorrigirDimensionamento={handleCorrigirDimensionamento}
+                />
               ) : null}
             </CardContent>
           </Card>
